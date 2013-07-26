@@ -21,13 +21,13 @@ database.
 
 #### Create a rake task to create data model objects from the seed data
 
-**The application** needs to create objects from the common seed data.  To
-do this, the application will need to create Rake task (such as the one
-below) that reads the seed data, and uses it to create the objects in
+**The application** needs to create objects from the common seed data. To
+do this, you will need to create a Rake task (such as the one
+below) for your application that reads the seed data, and uses it to create the objects in
 the application's own data model.
 
 `ApplicationSeeds` provides an API to allow for the easy retrieveal of
-seed data.  See blow for more information about the API.
+seed data.  See below for more information about the API.
 
 ```ruby
 namespace :application_seeds do
@@ -160,7 +160,7 @@ does not.
 ```ruby
 ApplicationSeeds.campaigns  # where "campaigns" is the name of the seed file
 ```
-    
+
 This call returns a hash with one or more entries (depending on the contentes of the seed file).
 The IDs of the object are the keys, and a hash containing the object's attributes are the values.
 An exception is raised if no seed data could be with the given name.
@@ -260,7 +260,7 @@ another application, the key specified by the client must be in the server's
 data set, along with the other data associated with the key that the
 client is requesting.
 
-Often, each application will have its own, sioled seed data, making
+Often, each application will have its own, siloed seed data, making
 inter-app communication impossible.  In order to get all of the
 application data in sync, developers will often resort to populating
 their development databases with production data.  Production data on a
@@ -316,4 +316,3 @@ couple applications.  The goal of a service oriented
 architecture is to prevent this.  With great power comes great
 responsibility.  Carefully consider the trade offs any time you
 introduce an API call to fetch data from a remote service.
-
