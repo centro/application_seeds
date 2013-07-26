@@ -11,6 +11,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{A library for managing standardized application seed data}
   gem.summary       = %q{A library for managing a standardized set of seed data for applications in a non-production environment}
   gem.homepage      = "https://github.com/centro/application_seeds"
+  gem.license       = 'MIT'
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
