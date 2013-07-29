@@ -9,12 +9,12 @@ module ApplicationSeeds
 
     def select_attributes(*attribute_names)
       attribute_names.map!(&:to_s)
-      select { |k,v| attribute_names.include?(k) }
+      Attributes.new(select { |k,v| attribute_names.include?(k) })
     end
 
     def reject_attributes(*attribute_names)
       attribute_names.map!(&:to_s)
-      reject { |k,v| attribute_names.include?(k) }
+      Attributes.new(reject { |k,v| attribute_names.include?(k) })
     end
 
     def map_attributes(mapping)

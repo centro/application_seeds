@@ -14,6 +14,9 @@ describe "Attributes" do
     it "returns only the select attributes" do
       @selected_attributes.should == { "first_name" => "Billy", "occupation" => "Bus Driver" }
     end
+    it "returns a new instance of the Attributes class" do
+      @selected_attributes.is_a?(ApplicationSeeds::Attributes).should be_true
+    end
   end
 
   describe "#reject_attributes" do
@@ -22,6 +25,9 @@ describe "Attributes" do
     end
     it "returns only the select attributes" do
       @rejected_attributes.should == { "occupation" => "Bus Driver" }
+    end
+    it "returns a new instance of the Attributes class" do
+      @rejected_attributes.is_a?(ApplicationSeeds::Attributes).should be_true
     end
   end
 
