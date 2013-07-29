@@ -1,5 +1,14 @@
 require 'application_seeds'
 
+class Person
+  attr_accessor :attributes, :id, :saved
+  attr_accessor :first_name, :last_name, :company_id, :start_date
+
+  def save!(options={})
+    @saved = true
+  end
+end
+
 describe "ApplicationSeeds" do
   before do
     ApplicationSeeds.data_directory = File.join(File.dirname(__FILE__), "seed_data")
@@ -77,6 +86,80 @@ describe "ApplicationSeeds" do
     end
     it "returns false if the specified seed data does not exist" do
       ApplicationSeeds.seed_data_exists?(:missing).should_not be_true
+    end
+  end
+
+  context "with a valid dataset" do
+    before do
+      ApplicationSeeds.stub(:store_dataset)
+      ApplicationSeeds.dataset = "test_data_set"
+    end
+
+    describe "#create_object" do
+      before do
+        @attributes = ApplicationSeeds.people(1)
+        @object = ApplicationSeeds.create_object!(Person, @attributes['id'], @attributes)
+      end
+      it "assigns the id" do
+        @object.id.should == 1
+      end
+      it "assigns the attributes" do
+        @object.attributes.should == @attributes.reject { |k,v| k == "bogus_attribute" }
+      end
+      it "saves the object in the database" do
+        @object.saved.should be_true
+      end
+    end
+
+    describe "fetching all seed data" do
+      before do
+        @people = ApplicationSeeds.people
+      end
+      it "returns all people" do
+        @people.size.should == 3
+      end
+      it "returns the attributes for each person" do
+        person = @people[2]
+        person['first_name'].should == "Jane"
+        person['last_name'].should == "Doe"
+      end
+    end
+
+    describe "fetching seed data by id" do
+      it "returns the attributes for each person" do
+        @person = ApplicationSeeds.people(2)
+        @person['first_name'].should == "Jane"
+        @person['last_name'].should == "Doe"
+      end
+      it "raises an error if no data could be found with the specified id" do
+        expect { ApplicationSeeds.people(404) }.to raise_error(RuntimeError)
+      end
+    end
+
+    describe "fetching seed data by property values" do
+      it "returns the found person" do
+        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 2)
+        @people.size.should == 1
+        @people.values.first['first_name'].should == "John"
+        @people.values.first['last_name'].should == "Walsh"
+      end
+      it "returns multiple people if there are multiple matches" do
+        @people = ApplicationSeeds.people(:company_id => 1)
+        @people.size.should == 2
+        @people.values.first['first_name'].should == "Joe"
+        @people.values.last['first_name'].should == "Jane"
+      end
+      it "returns an empty hash if no matches could be found" do
+        @people = ApplicationSeeds.people(:last_name => '404')
+        @people.should == {}
+      end
+    end
+
+    describe "ERB" do
+      it "processes ERB snippets in the fixtures" do
+        @person = ApplicationSeeds.people(1)
+        @person['start_date'].should == 2.months.ago.to_date
+      end
     end
   end
 

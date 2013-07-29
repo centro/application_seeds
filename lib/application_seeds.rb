@@ -126,9 +126,7 @@ module ApplicationSeeds
         raise error_message
       end
 
-      Database.create_metadata_table
-      Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{dataset}');")
-
+      store_dataset(dataset)
       @dataset = dataset
     end
 
@@ -249,6 +247,11 @@ module ApplicationSeeds
       data = @seed_data[type].find { |d| d['id'].to_s == id.to_s }
       raise "No seed data could be found for '#{type}' with id #{id}" if data.nil?
       Attributes.new(data)
+    end
+
+    def store_dataset(dataset)
+      Database.create_metadata_table
+      Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{dataset}');")
     end
 
   end

@@ -3,16 +3,19 @@
   last_name: Smith
   company_id: 1
   start_date: <%= 2.months.ago.to_date %>
+  bogus_attribute: foo
 
 - id: 2
   first_name: Jane
   last_name: Doe
   company_id: 1
   start_date: <%= 10.months.ago.to_date %>
+  bogus_attribute: foo
 
 - id: 3
   first_name: John
   last_name: Walsh
   company_id: 2
   start_date: <%= 10.years.ago.to_date %>
+  bogus_attribute: foo
 
