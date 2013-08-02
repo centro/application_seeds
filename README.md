@@ -6,18 +6,77 @@ in a non-production environment.
 
 ## Requirements
 
-* Postgresql - This library currently only works with the Postgresql
-database.
+* Rails
+* Postgresql (This library currently only works with the Postgresql database)
 
 
 ## Usage
 
 #### Include the gem in your Gemfile
 
-    group :development, :test, :integration, :staging do
+    group :development do
       gem 'application_seeds', :git => 'git@github.com:centro/application_seeds.git'
     end
 
+You should add this gem to any environment group that would need access
+to the seed data (like an "integration" environment, for example).
+
+
+#### Create a shared data set
+
+This library operates on a set of YAML files that represent your shared
+data set.  The dataset can be provided two different ways.
+
+##### Via a gem
+
+In order to easily share the seed data between apps, you can package
+the YAML files into a gem.  The gem should have the following directory
+structure:
+
+```
+lib
+ +-- seeds
+      |-- seed_data_set_1
+      |    |-- some_data.yml
+      |    +-- some_other_data.yml
+      +-- seed_data_set_2  
+           |-- some_data.yml
+           +-- some_other_data.yml
+```
+
+The gem may contain any number of datasets.  The above example has two datasets,
+`seed_data_set_1` and `seed_data_set_2`.  The YAML files are located in the
+dataset directories.
+
+You will need to include the gem containing your seed data in your `Gemfile`.
+
+Use the `data_gem_name` API method to specify where your seed data is located.
+
+```ruby
+ApplicationSeeds.data_gem_name = "my-seed-data-gem"
+```
+
+##### Via the filesystem
+
+The dataset may also exist on the filesystem.  The directory structure should
+be identical to what is described above in the "Via a gem" section, but the `lib`
+diretory is not required.
+
+```
+seeds
+ |-- seed_data_set_1
+ |    |-- some_data.yml
+ |    +-- some_other_data.yml
+ +-- seed_data_set_2  
+      |-- some_data.yml
+      +-- some_other_data.yml
+```
+
+Use the `data_directory` API method to specify the path to your seed data on the filesystem.
+
+```ruby
+ApplicationSeeds.data_directory = "/path/to/seeds"
+```
 
 #### Create a rake task to create data model objects from the seed data
 
@@ -33,6 +92,7 @@ seed data.  See below for more information about the API.
 namespace :application_seeds do
   desc 'Dump the development database and load it with standardized application seed data'
   task :load, [:dataset] => ['db:drop', 'db:create', 'db:migrate', :environment] do |t, args|
+    ApplicationSeeds.data_gem_name = "my-seed-data-gem"
     ApplicationSeeds.dataset = args[:dataset]
 
     seed_campaigns
