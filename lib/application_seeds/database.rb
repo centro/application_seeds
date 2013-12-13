@@ -18,6 +18,9 @@ module ApplicationSeeds
       end
 
       def create_metadata_table
+        if defined?(ActiveRecord)
+          ActiveRecord::SchemaDumper.ignore_tables = ["application_seeds"]
+        end
         connection.exec('DROP TABLE IF EXISTS application_seeds;')
         connection.exec('CREATE TABLE application_seeds (dataset varchar(255));')
       end
