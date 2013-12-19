@@ -116,10 +116,10 @@ describe "ApplicationSeeds" do
         @people = ApplicationSeeds.people
       end
       it "returns all people" do
-        @people.size.should == 3
+        @people.size.should == 4
       end
       it "returns the attributes for each person" do
-        person = @people.values.sort { |a,b| a['start_date'] <=> b['start_date'] }[1]
+        person = @people.values.sort { |a,b| b['start_date'] <=> a['start_date'] }[1]
         person['first_name'].should == "Jane"
         person['last_name'].should == "Doe"
       end
@@ -176,6 +176,16 @@ describe "ApplicationSeeds" do
       it "returns an empty hash if no matches could be found" do
         @people = ApplicationSeeds.people(:last_name => '404')
         @people.should == {}
+      end
+    end
+
+    describe "specifying ids" do
+      it "can fetch people by their specified id" do
+        @person = ApplicationSeeds.people(456)
+        @person['id'].should == 456
+        @person['first_name'].should == "Sam"
+        @person['last_name'].should == "Jones"
+        @person['company_id'].should == 123
       end
     end
 

@@ -306,15 +306,21 @@ module ApplicationSeeds
         @seed_labels[seed_type] = {}
 
         data = YAML.load(File.read(seed_file))
-        data.keys.each do |label|
-          @seed_labels[seed_type][label] = generate_unique_ids(seed_type, label)
+        data.each do |label, attributes|
+          specified_id = attributes['id']
+          ids = specified_id.nil? ? generate_unique_ids(seed_type, label) : generate_ids(specified_id)
+          @seed_labels[seed_type][label] = ids
         end
       end
     end
 
     def generate_unique_ids(seed_type, label)
       checksum = Zlib.crc32(seed_type + label)
-      { :id => checksum, :uuid => "00000000-0000-0000-0000-%012d" % checksum }
+      generate_ids(checksum)
+    end
+
+    def generate_ids(id)
+      { :id => id, :uuid => "00000000-0000-0000-0000-%012d" % id }
     end
 
     def seed_files(dataset)
