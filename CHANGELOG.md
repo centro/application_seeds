@@ -7,6 +7,12 @@ v0.2.0, ????-??-??
   * Added support for integer or UUID ids
 
 
+v0.1.1, 2013-12-18
+------------------
+
+  * No change.  Redeployed to fix bad 0.1.0 rubygems push.
+
+
 v0.1.0, 2013-12-13
 ------------------
 
