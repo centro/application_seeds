@@ -97,11 +97,11 @@ describe "ApplicationSeeds" do
 
     describe "#create_object" do
       before do
-        @attributes = ApplicationSeeds.people(1)
+        @attributes = ApplicationSeeds.people(:joe_smith)
         @object = ApplicationSeeds.create_object!(Person, @attributes['id'], @attributes)
       end
       it "assigns the id" do
-        @object.id.should == 1
+        @object.id.should == 1709837792
       end
       it "assigns the attributes" do
         @object.attributes.should == @attributes.reject { |k,v| k == "bogus_attribute" }
@@ -119,35 +119,41 @@ describe "ApplicationSeeds" do
         @people.size.should == 3
       end
       it "returns the attributes for each person" do
-        person = @people[2]
+        person = @people.values.sort { |a,b| a['start_date'] <=> b['start_date'] }[1]
         person['first_name'].should == "Jane"
         person['last_name'].should == "Doe"
       end
     end
 
-    describe "fetching seed data by id" do
+    describe "fetching seed data by label" do
       it "returns the attributes for each person" do
-        @person = ApplicationSeeds.people(2)
+        @person = ApplicationSeeds.people(:jane_doe)
         @person['first_name'].should == "Jane"
         @person['last_name'].should == "Doe"
       end
-      it "raises an error if no data could be found with the specified id" do
-        expect { ApplicationSeeds.people(404) }.to raise_error(RuntimeError)
+      it "raises an error if no data could be found with the specified label" do
+        expect { ApplicationSeeds.people(:bogus) }.to raise_error(RuntimeError)
       end
     end
 
     describe "fetching seed data by property values" do
       it "returns the found person" do
-        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 2)
+        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => :ma_and_pa)
         @people.size.should == 1
         @people.values.first['first_name'].should == "John"
         @people.values.first['last_name'].should == "Walsh"
       end
       it "returns multiple people if there are multiple matches" do
-        @people = ApplicationSeeds.people(:company_id => 1)
+        @people = ApplicationSeeds.people(:company_id => :mega_corp)
         @people.size.should == 2
         @people.values.first['first_name'].should == "Joe"
         @people.values.last['first_name'].should == "Jane"
+      end
+      it "can find elements using the id instead of the label" do
+        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 3268618917)
+        @people.size.should == 1
+        @people.values.first['first_name'].should == "John"
+        @people.values.first['last_name'].should == "Walsh"
       end
       it "returns an empty hash if no matches could be found" do
         @people = ApplicationSeeds.people(:last_name => '404')
@@ -157,7 +163,7 @@ describe "ApplicationSeeds" do
 
     describe "ERB" do
       it "processes ERB snippets in the fixtures" do
-        @person = ApplicationSeeds.people(1)
+        @person = ApplicationSeeds.people(:joe_smith)
         @person['start_date'].should == 2.months.ago.to_date
       end
     end

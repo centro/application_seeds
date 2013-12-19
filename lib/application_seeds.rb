@@ -1,3 +1,5 @@
+require "securerandom"
+require "zlib"
 require "yaml"
 require "erb"
 require "pg"
@@ -20,12 +22,12 @@ require "application_seeds/attributes"
 # The IDs of the object are the keys, and a hash containing the object's attributes are the values.
 # An exception is raised if no seed data could be with the given name.
 #
-# === Fetching seed data by ID
+# === Fetching seed data by label
 #
-#   ApplicationSeeds.campaigns(1)  # where "campaigns" is the name of the seed file, and 1 is the ID of the campaign
+#   ApplicationSeeds.campaigns(:label)  # where "campaigns" is the name of the seed file, and :label is the label of the campaign
 #
 # This call returns a hash containing the object's attributes.  An exception is raised if no
-# seed data could be found with the given ID.
+# seed data could be found with the given label.
 #
 # === Fetching seed data by some other attribute
 #
@@ -127,6 +129,8 @@ module ApplicationSeeds
       end
 
       store_dataset(dataset)
+      process_labels(dataset)
+      load_seed_data(dataset)
       @dataset = dataset
     end
 
@@ -196,28 +200,43 @@ module ApplicationSeeds
     end
 
     def seed_data(type, options)
-      @seed_data ||= {}
-      @seed_data[type] ||= load_seed_data(type)
       raise "No seed data could be found for '#{type}'" if @seed_data[type].nil?
 
       if options.nil?
         fetch(type)
-      elsif options.is_a?(Fixnum) || options.is_a?(String)
-        fetch_with_id(type, options)
+      elsif options.is_a?(Symbol)
+        fetch_with_label(type, options)
       elsif options.is_a? Hash
         fetch(type) do |attributes|
-          (options.stringify_keys.to_a - attributes.to_a).empty?
+          options.stringify_keys!
+          options = replace_labels_with_ids(options)
+          (options.to_a - attributes.to_a).empty?
         end
       end
     end
 
-    def load_seed_data(type)
-      data_file = File.join(seed_data_path, @dataset, "#{type}.yml")
-      if File.exist?(data_file)
-        YAML.load(ERB.new(File.read(data_file)).result)
-      else
-        nil
+    def load_seed_data(dataset)
+      @seed_data = {}
+      seed_files(dataset).each do |seed_file|
+        basename = File.basename(seed_file, ".yml")
+        data = YAML.load(ERB.new(File.read(seed_file)).result)
+        data.each do |label, attributes|
+          data[label] = replace_labels_with_ids(attributes)
+        end
+        @seed_data[basename.to_sym] = data
       end
+    end
+
+    def replace_labels_with_ids(attributes)
+      new_attributes = {}
+      attributes.each do |key, value|
+        new_attributes[key] = value
+        if key =~ /^(.*)_id$/ || key =~ /^(.*)_uuid$/
+          label_ids = @seed_labels[$1.pluralize][value.to_s]
+          new_attributes[key] = label_ids[:id] if label_ids
+        end
+      end
+      new_attributes
     end
 
     def seed_data_path
@@ -233,9 +252,9 @@ module ApplicationSeeds
 
     def fetch(type, &block)
       result = {}
-      @seed_data[type].each do |d|
-        attributes = d.clone
-        id = attributes.delete('id')
+      @seed_data[type].each do |label, attrs|
+        attributes = attrs.clone
+        id = @seed_labels[type.to_s][label][:id]
         if !block_given? || (block_given? && yield(attributes) == true)
           result[id] = Attributes.new(attributes)
         end
@@ -243,9 +262,10 @@ module ApplicationSeeds
       result
     end
 
-    def fetch_with_id(type, id)
-      data = @seed_data[type].find { |d| d['id'].to_s == id.to_s }
+    def fetch_with_label(type, label)
+      data = @seed_data[type][label.to_s]
       raise "No seed data could be found for '#{type}' with id #{id}" if data.nil?
+      data['id'] = @seed_labels[type.to_s][label.to_s][:id]
       Attributes.new(data)
     end
 
@@ -254,5 +274,28 @@ module ApplicationSeeds
       Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{dataset}');")
     end
 
+    def process_labels(dataset)
+      return @seed_labels unless @seed_labels.nil?
+
+      @seed_labels = {}
+      seed_files(dataset).each do |seed_file|
+        seed_type = File.basename(seed_file, ".yml")
+        @seed_labels[seed_type] = {}
+
+        data = YAML.load(File.read(seed_file))
+        data.keys.each do |label|
+          @seed_labels[seed_type][label] = generate_unique_ids(seed_type, label)
+        end
+      end
+    end
+
+    def generate_unique_ids(seed_type, label)
+      checksum = Zlib.crc32(seed_type + label)
+      { :id => checksum, :uuid => "00000000-0000-0000-0000-%012d" % checksum }
+    end
+
+    def seed_files(dataset)
+      Dir[File.join(seed_data_path, dataset, "*.yml")]
+    end
   end
 end
