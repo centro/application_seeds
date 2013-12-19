@@ -259,8 +259,18 @@ module ApplicationSeeds
         new_attributes[key] = value
         if key =~ /^(.*)_id$/ || key =~ /^(.*)_uuid$/
           type = $1.pluralize
-          label_ids = @seed_labels[$1.pluralize][value.to_s]
-          new_attributes[key] = label_ids[id_type(type)] if label_ids
+
+          # Handle the case where seed data type cannot be determined by the
+          # name of the attribute -- employer_id: ma_and_pa (companies)
+          if value =~ /\((.*)\)/
+            type = $1
+            value = value.sub(/\((.*)\)/, "").strip
+          end
+
+          if @seed_labels[type]
+            label_ids = @seed_labels[type][value.to_s]
+            new_attributes[key] = label_ids[id_type(type)] if label_ids
+          end
         end
       end
       new_attributes

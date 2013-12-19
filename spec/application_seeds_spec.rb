@@ -116,7 +116,7 @@ describe "ApplicationSeeds" do
         @people = ApplicationSeeds.people
       end
       it "returns all people" do
-        expect(@people.size).to eql(4)
+        expect(@people.size).to eql(5)
       end
       it "returns the attributes for each person" do
         person = @people.values.sort { |a,b| b['start_date'] <=> a['start_date'] }[1]
@@ -193,6 +193,13 @@ describe "ApplicationSeeds" do
       it "processes ERB snippets in the fixtures" do
         person = ApplicationSeeds.people(:joe_smith)
         expect(person['start_date']).to eql(2.months.ago.to_date)
+      end
+    end
+
+    describe "when specifying the seed data type in the seed data file" do
+      it "should look for the seed data in the specified type file" do
+        person = ApplicationSeeds.people(:ken_adams)
+        expect(person['employer_id']).to eql(3268618917)
       end
     end
   end
