@@ -29,6 +29,13 @@ require "application_seeds/attributes"
 # This call returns a hash containing the object's attributes.  An exception is raised if no
 # seed data could be found with the given label.
 #
+# === Fetching seed data by id
+#
+#   ApplicationSeeds.campaigns(12345)  # where "campaigns" is the name of the seed file, and 12345 is the id of the campaign
+#
+# This call returns a hash containing the object's attributes.  An exception is raised if no
+# seed data could be found with the given id.
+#
 # === Fetching seed data by some other attribute
 #
 #   ApplicationSeeds.campaigns(foo: 'bar', name: 'John')  # where "campaigns" is the name of the seed file
@@ -205,6 +212,8 @@ module ApplicationSeeds
 
       if options.nil?
         fetch(type)
+      elsif options.is_a?(Fixnum) || options.is_a?(String)
+        fetch_with_id(type, options)
       elsif options.is_a?(Symbol)
         fetch_with_label(type, options.to_s)
       elsif options.is_a? Hash
@@ -263,10 +272,23 @@ module ApplicationSeeds
       result
     end
 
+    def fetch_with_id(type, id)
+      data = nil
+      @seed_labels[type].each do |label, ids|
+        if ids.values.map(&:to_s).include?(id.to_s)
+          data = @seed_data[type][label]
+          data['id'] = @seed_labels[type][label][:id]
+          break
+        end
+      end
+      raise "No seed data could be found for '#{type}' with id #{id}" if data.nil?
+      Attributes.new(data)
+    end
+
     def fetch_with_label(type, label)
       data = @seed_data[type][label]
-      raise "No seed data could be found for '#{type}' with id #{id}" if data.nil?
-      data['id'] = @seed_labels[type.to_s][label][:id]
+      raise "No seed data could be found for '#{type}' with label #{label}" if data.nil?
+      data['id'] = @seed_labels[type][label][:id]
       Attributes.new(data)
     end
 

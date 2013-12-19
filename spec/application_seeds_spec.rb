@@ -136,6 +136,24 @@ describe "ApplicationSeeds" do
       end
     end
 
+    describe "fetching seed data by id" do
+      it "can find the seed with an integer id" do
+        @person = ApplicationSeeds.people(1560859090)
+        @person['id'].should == 1560859090
+        @person['first_name'].should == "Jane"
+        @person['last_name'].should == "Doe"
+      end
+      it "can find the seed with an string id" do
+        @person = ApplicationSeeds.people("1560859090")
+        @person['id'].should == 1560859090
+        @person['first_name'].should == "Jane"
+        @person['last_name'].should == "Doe"
+      end
+      it "raises an error if no data could be found with the specified id" do
+        expect { ApplicationSeeds.people(404) }.to raise_error(RuntimeError)
+      end
+    end
+
     describe "fetching seed data by property values" do
       it "returns the found person" do
         @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => :ma_and_pa)
