@@ -200,12 +200,13 @@ module ApplicationSeeds
     end
 
     def seed_data(type, options)
+      type = type.to_s
       raise "No seed data could be found for '#{type}'" if @seed_data[type].nil?
 
       if options.nil?
         fetch(type)
       elsif options.is_a?(Symbol)
-        fetch_with_label(type, options)
+        fetch_with_label(type, options.to_s)
       elsif options.is_a? Hash
         fetch(type) do |attributes|
           options.stringify_keys!
@@ -223,7 +224,7 @@ module ApplicationSeeds
         data.each do |label, attributes|
           data[label] = replace_labels_with_ids(attributes)
         end
-        @seed_data[basename.to_sym] = data
+        @seed_data[basename] = data
       end
     end
 
@@ -254,7 +255,7 @@ module ApplicationSeeds
       result = {}
       @seed_data[type].each do |label, attrs|
         attributes = attrs.clone
-        id = @seed_labels[type.to_s][label][:id]
+        id = @seed_labels[type][label][:id]
         if !block_given? || (block_given? && yield(attributes) == true)
           result[id] = Attributes.new(attributes)
         end
@@ -263,9 +264,9 @@ module ApplicationSeeds
     end
 
     def fetch_with_label(type, label)
-      data = @seed_data[type][label.to_s]
+      data = @seed_data[type][label]
       raise "No seed data could be found for '#{type}' with id #{id}" if data.nil?
-      data['id'] = @seed_labels[type.to_s][label.to_s][:id]
+      data['id'] = @seed_labels[type.to_s][label][:id]
       Attributes.new(data)
     end
 
