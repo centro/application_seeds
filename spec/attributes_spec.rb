@@ -12,10 +12,10 @@ describe "Attributes" do
       @selected_attributes = @attributes.select_attributes(:first_name, :occupation)
     end
     it "returns only the select attributes" do
-      @selected_attributes.should == { "first_name" => "Billy", "occupation" => "Bus Driver" }
+      expect(@selected_attributes).to eql({ "first_name" => "Billy", "occupation" => "Bus Driver" })
     end
     it "returns a new instance of the Attributes class" do
-      @selected_attributes.is_a?(ApplicationSeeds::Attributes).should be_true
+      expect(@selected_attributes).to be_a(ApplicationSeeds::Attributes)
     end
   end
 
@@ -24,10 +24,10 @@ describe "Attributes" do
       @rejected_attributes = @attributes.reject_attributes(:first_name, :last_name)
     end
     it "returns only the select attributes" do
-      @rejected_attributes.should == { "occupation" => "Bus Driver" }
+      expect(@rejected_attributes).to eql({ "occupation" => "Bus Driver" })
     end
     it "returns a new instance of the Attributes class" do
-      @rejected_attributes.is_a?(ApplicationSeeds::Attributes).should be_true
+      expect(@rejected_attributes).to be_a(ApplicationSeeds::Attributes)
     end
   end
 
@@ -36,10 +36,10 @@ describe "Attributes" do
       @mapped_attributes = @attributes.map_attributes(:first_name => :fname, :last_name => :lname)
     end
     it "returns only the select attributes" do
-      @mapped_attributes.should == { "fname" => "Billy", "lname" => "Bob", "occupation" => "Bus Driver" }
+      expect(@mapped_attributes).to eql({ "fname" => "Billy", "lname" => "Bob", "occupation" => "Bus Driver" })
     end
     it "returns a new instance of the Attributes class" do
-      @mapped_attributes.is_a?(ApplicationSeeds::Attributes).should be_true
+      expect(@mapped_attributes).to be_a(ApplicationSeeds::Attributes)
     end
   end
 end

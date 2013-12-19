@@ -25,13 +25,13 @@ describe "ApplicationSeeds" do
 
   describe "#data_gem_name" do
     it "defaults to 'application_seed_data'" do
-      ApplicationSeeds.data_gem_name.should == "application_seed_data"
+      expect(ApplicationSeeds.data_gem_name).to eql("application_seed_data")
     end
   end
 
   describe "#data_directory" do
     it "is able to set the data directory successfully" do
-      ApplicationSeeds.data_directory.should == File.join(File.dirname(__FILE__), "seed_data")
+      expect(ApplicationSeeds.data_directory).to eql(File.join(File.dirname(__FILE__), "seed_data"))
     end
     it "raises an error if a non-existant directory specified" do
       expect { ApplicationSeeds.data_directory = "/foo/bar" }.to raise_error
@@ -63,7 +63,7 @@ describe "ApplicationSeeds" do
         ApplicationSeeds.dataset = "test_data_set"
       end
       it "sets the dataset" do
-        ApplicationSeeds.instance_variable_get(:@dataset).should == "test_data_set"
+        expect(ApplicationSeeds.instance_variable_get(:@dataset)).to eql("test_data_set")
       end
     end
   end
@@ -76,16 +76,16 @@ describe "ApplicationSeeds" do
       ApplicationSeeds::Database.should_receive(:connection) { connection_dummy }
     end
     it "fetches the dataset name from the database" do
-      ApplicationSeeds.dataset.should == "test_data_set"
+      expect(ApplicationSeeds.dataset).to eql("test_data_set")
     end
   end
 
   describe "#seed_data_exists?" do
     it "returns true if the specified seed data exists" do
-      ApplicationSeeds.seed_data_exists?(:people).should be_true
+      expect(ApplicationSeeds.seed_data_exists?(:people)).to be_true
     end
     it "returns false if the specified seed data does not exist" do
-      ApplicationSeeds.seed_data_exists?(:missing).should_not be_true
+      expect(ApplicationSeeds.seed_data_exists?(:missing)).to_not be_true
     end
   end
 
@@ -101,13 +101,13 @@ describe "ApplicationSeeds" do
         @object = ApplicationSeeds.create_object!(Person, @attributes['id'], @attributes)
       end
       it "assigns the id" do
-        @object.id.should == 1709837792
+        expect(@object.id).to eql(1709837792)
       end
       it "assigns the attributes" do
-        @object.attributes.should == @attributes.reject { |k,v| k == "bogus_attribute" }
+        expect(@object.attributes).to eql(@attributes.reject { |k,v| k == "bogus_attribute" })
       end
       it "saves the object in the database" do
-        @object.saved.should be_true
+        expect(@object.saved).to be_true
       end
     end
 
@@ -116,20 +116,20 @@ describe "ApplicationSeeds" do
         @people = ApplicationSeeds.people
       end
       it "returns all people" do
-        @people.size.should == 4
+        expect(@people.size).to eql(4)
       end
       it "returns the attributes for each person" do
         person = @people.values.sort { |a,b| b['start_date'] <=> a['start_date'] }[1]
-        person['first_name'].should == "Jane"
-        person['last_name'].should == "Doe"
+        expect(person['first_name']).to eql("Jane")
+        expect(person['last_name']).to eql("Doe")
       end
     end
 
     describe "fetching seed data by label" do
       it "returns the attributes for each person" do
-        @person = ApplicationSeeds.people(:jane_doe)
-        @person['first_name'].should == "Jane"
-        @person['last_name'].should == "Doe"
+        person = ApplicationSeeds.people(:jane_doe)
+        expect(person['first_name']).to eql("Jane")
+        expect(person['last_name']).to eql("Doe")
       end
       it "raises an error if no data could be found with the specified label" do
         expect { ApplicationSeeds.people(:bogus) }.to raise_error(RuntimeError)
@@ -138,16 +138,16 @@ describe "ApplicationSeeds" do
 
     describe "fetching seed data by id" do
       it "can find the seed with an integer id" do
-        @person = ApplicationSeeds.people(1560859090)
-        @person['id'].should == 1560859090
-        @person['first_name'].should == "Jane"
-        @person['last_name'].should == "Doe"
+        person = ApplicationSeeds.people(1560859090)
+        expect(person['id']).to eql(1560859090)
+        expect(person['first_name']).to eql("Jane")
+        expect(person['last_name']).to eql("Doe")
       end
       it "can find the seed with an string id" do
-        @person = ApplicationSeeds.people("1560859090")
-        @person['id'].should == 1560859090
-        @person['first_name'].should == "Jane"
-        @person['last_name'].should == "Doe"
+        person = ApplicationSeeds.people("1560859090")
+        expect(person['id']).to eql(1560859090)
+        expect(person['first_name']).to eql("Jane")
+        expect(person['last_name']).to eql("Doe")
       end
       it "raises an error if no data could be found with the specified id" do
         expect { ApplicationSeeds.people(404) }.to raise_error(RuntimeError)
@@ -156,43 +156,43 @@ describe "ApplicationSeeds" do
 
     describe "fetching seed data by property values" do
       it "returns the found person" do
-        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => :ma_and_pa)
-        @people.size.should == 1
-        @people.values.first['first_name'].should == "John"
-        @people.values.first['last_name'].should == "Walsh"
+        people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => :ma_and_pa)
+        expect(people.size).to eql(1)
+        expect(people.values.first['first_name']).to eql("John")
+        expect(people.values.first['last_name']).to eql("Walsh")
       end
       it "returns multiple people if there are multiple matches" do
-        @people = ApplicationSeeds.people(:company_id => :mega_corp)
-        @people.size.should == 2
-        @people.values.first['first_name'].should == "Joe"
-        @people.values.last['first_name'].should == "Jane"
+        people = ApplicationSeeds.people(:company_id => :mega_corp)
+        expect(people.size).to eql(2)
+        expect(people.values.first['first_name']).to eql("Joe")
+        expect(people.values.last['first_name']).to eql("Jane")
       end
       it "can find elements using the id instead of the label" do
-        @people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 3268618917)
-        @people.size.should == 1
-        @people.values.first['first_name'].should == "John"
-        @people.values.first['last_name'].should == "Walsh"
+        people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 3268618917)
+        expect(people.size).to eql(1)
+        expect(people.values.first['first_name']).to eql("John")
+        expect(people.values.first['last_name']).to eql("Walsh")
       end
       it "returns an empty hash if no matches could be found" do
-        @people = ApplicationSeeds.people(:last_name => '404')
-        @people.should == {}
+        people = ApplicationSeeds.people(:last_name => '404')
+        expect(people).to eql({})
       end
     end
 
     describe "specifying ids" do
       it "can fetch people by their specified id" do
-        @person = ApplicationSeeds.people(456)
-        @person['id'].should == 456
-        @person['first_name'].should == "Sam"
-        @person['last_name'].should == "Jones"
-        @person['company_id'].should == 123
+        person = ApplicationSeeds.people(456)
+        expect(person['id']).to eql(456)
+        expect(person['first_name']).to eql("Sam")
+        expect(person['last_name']).to eql("Jones")
+        expect(person['company_id']).to eql(123)
       end
     end
 
     describe "ERB" do
       it "processes ERB snippets in the fixtures" do
-        @person = ApplicationSeeds.people(:joe_smith)
-        @person['start_date'].should == 2.months.ago.to_date
+        person = ApplicationSeeds.people(:joe_smith)
+        expect(person['start_date']).to eql(2.months.ago.to_date)
       end
     end
   end
@@ -209,8 +209,8 @@ describe "ApplicationSeeds" do
         @person = ApplicationSeeds.people(:john_walsh)
       end
       it "uses UUIDs for the keys" do
-        @person['id'].should == "00000000-0000-0000-0000-002157768310"
-        @person['company_id'].should == "00000000-0000-0000-0000-003268618917"
+        expect(@person['id']).to eql("00000000-0000-0000-0000-002157768310")
+        expect(@person['company_id']).to eql("00000000-0000-0000-0000-003268618917")
       end
     end
   end
@@ -227,8 +227,8 @@ describe "ApplicationSeeds" do
         @person = ApplicationSeeds.people(:john_walsh)
       end
       it "uses UUIDs for the keys" do
-        @person['id'].should == "00000000-0000-0000-0000-002157768310"
-        @person['company_id'].should == 3268618917
+        expect(@person['id']).to eql("00000000-0000-0000-0000-002157768310")
+        expect(@person['company_id']).to eql(3268618917)
       end
     end
   end
