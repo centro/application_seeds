@@ -244,10 +244,12 @@ module ApplicationSeeds
       seed_files(dataset).each do |seed_file|
         basename = File.basename(seed_file, ".yml")
         data = YAML.load(ERB.new(File.read(seed_file)).result)
-        data.each do |label, attributes|
-          data[label] = replace_labels_with_ids(attributes)
+        if data
+          data.each do |label, attributes|
+            data[label] = replace_labels_with_ids(attributes)
+          end
+          @seed_data[basename] = data
         end
-        @seed_data[basename] = data
       end
     end
 
@@ -321,10 +323,12 @@ module ApplicationSeeds
         @seed_labels[seed_type] = {}
 
         data = YAML.load(File.read(seed_file))
-        data.each do |label, attributes|
-          specified_id = attributes['id']
-          ids = specified_id.nil? ? generate_unique_ids(seed_type, label) : generate_ids(specified_id)
-          @seed_labels[seed_type][label] = ids
+        if data
+          data.each do |label, attributes|
+            specified_id = attributes['id']
+            ids = specified_id.nil? ? generate_unique_ids(seed_type, label) : generate_ids(specified_id)
+            @seed_labels[seed_type][label] = ids
+          end
         end
       end
     end
