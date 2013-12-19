@@ -1,3 +1,12 @@
+v0.2.0, ????-??-??
+------------------
+
+  * Changed the seed data file format from a YAML Array to a YAML Hash
+  * Added support for seed data labels
+  * Added support for generated IDs
+  * Added support for integer or UUID ids
+
+
 v0.1.0, 2013-12-13
 ------------------
 

@@ -15,7 +15,7 @@ in a non-production environment.
 #### Include the gem in your Gemfile
 
     group :development do
-      gem 'application_seeds', :git => 'git@github.com:centro/application_seeds.git'
+      gem 'application_seeds'
     end
 
 You should add this gem to any environment group that would need access
@@ -160,6 +160,32 @@ Then, you can seed a remote database by running the following:
     bundle exec cap <environment> deploy:application_seeds -s dataset=your_data_set
 
 
+## Configuration
+
+The `ApplicationSeeds` module can generate integer or UUID ids.  You can
+use the `config` method to tell `ApplicationSeeds` which id type you would
+like to use.
+
+ID types can be specified at the global level (to be applied to all seed data types)...
+```ruby
+ApplicationSeeds.config = { :id_type => :uuid }
+```
+
+...at  the data type level (if some types have UUID primary keys and other have integer primary keys)...
+```ruby
+ApplicationSeeds.config = { :people_id_type => :uuid, :companies_id_type => :integer }
+```
+
+...or a combination of both (if every type uses integer primary keys except for one, for example)
+```ruby
+ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
+```
+
+`integer` is the default id type.
+
+**`config` needs to be called before the dataset is specified using `dataset=`**
+
+
 ## The API
 
 The `ApplicationSeeds` module provides an API that enables the programmatic retrieval of seed data,
@@ -224,6 +250,16 @@ ApplicationSeeds.campaigns  # where "campaigns" is the name of the seed file
 This call returns a hash with one or more entries (depending on the contentes of the seed file).
 The IDs of the object are the keys, and a hash containing the object's attributes are the values.
 An exception is raised if no seed data could be with the given name.
+
+
+### Fetching seed data by label
+
+```ruby
+ApplicationSeeds.campaigns(:some_campaign)  # where "campaigns" is the name of the seed file, and :some_campaign is the label of the campaign
+```
+
+This call returns a hash containing the object's attributes.  An exception is raised if no
+seed data could be found with the given label.
 
 
 ### Fetching seed data by ID
