@@ -83,6 +83,20 @@ module ApplicationSeeds
   class << self
 
     #
+    # Specify any configuration, such as the type of ids to generate (:integer or :uuid).
+    #
+    def config=(config)
+      @_config = config
+    end
+
+    #
+    # Fetch the configuration.
+    #
+    def config
+      @_config ||= { :id_type => :integer }
+    end
+
+    #
     # Specify the name of the gem that contains the application seed data.
     #
     def data_gem_name=(gem_name)
@@ -242,8 +256,9 @@ module ApplicationSeeds
       attributes.each do |key, value|
         new_attributes[key] = value
         if key =~ /^(.*)_id$/ || key =~ /^(.*)_uuid$/
+          type = $1.pluralize
           label_ids = @seed_labels[$1.pluralize][value.to_s]
-          new_attributes[key] = label_ids[:id] if label_ids
+          new_attributes[key] = label_ids[id_type(type)] if label_ids
         end
       end
       new_attributes
@@ -264,7 +279,7 @@ module ApplicationSeeds
       result = {}
       @seed_data[type].each do |label, attrs|
         attributes = attrs.clone
-        id = @seed_labels[type][label][:id]
+        id = @seed_labels[type][label][id_type(type)]
         if !block_given? || (block_given? && yield(attributes) == true)
           result[id] = Attributes.new(attributes)
         end
@@ -277,7 +292,7 @@ module ApplicationSeeds
       @seed_labels[type].each do |label, ids|
         if ids.values.map(&:to_s).include?(id.to_s)
           data = @seed_data[type][label]
-          data['id'] = @seed_labels[type][label][:id]
+          data['id'] = @seed_labels[type][label][id_type(type)]
           break
         end
       end
@@ -288,7 +303,7 @@ module ApplicationSeeds
     def fetch_with_label(type, label)
       data = @seed_data[type][label]
       raise "No seed data could be found for '#{type}' with label #{label}" if data.nil?
-      data['id'] = @seed_labels[type][label][:id]
+      data['id'] = @seed_labels[type][label][id_type(type)]
       Attributes.new(data)
     end
 
@@ -320,11 +335,15 @@ module ApplicationSeeds
     end
 
     def generate_ids(id)
-      { :id => id, :uuid => "00000000-0000-0000-0000-%012d" % id }
+      { :integer => id, :uuid => "00000000-0000-0000-0000-%012d" % id }
     end
 
     def seed_files(dataset)
       Dir[File.join(seed_data_path, dataset, "*.yml")]
+    end
+
+    def id_type(type)
+      self.config["#{type}_id_type".to_sym] || self.config[:id_type]
     end
   end
 end

@@ -197,4 +197,40 @@ describe "ApplicationSeeds" do
     end
   end
 
+  describe "with UUIDs configured for all seed types" do
+    before do
+      ApplicationSeeds.stub(:store_dataset)
+      ApplicationSeeds.config = { :id_type => :uuid }
+      ApplicationSeeds.dataset = "test_data_set"
+    end
+
+    describe "when fetching seed data" do
+      before do
+        @person = ApplicationSeeds.people(:john_walsh)
+      end
+      it "uses UUIDs for the keys" do
+        @person['id'].should == "00000000-0000-0000-0000-002157768310"
+        @person['company_id'].should == "00000000-0000-0000-0000-003268618917"
+      end
+    end
+  end
+
+  describe "with data type specific key types configured" do
+    before do
+      ApplicationSeeds.stub(:store_dataset)
+      ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
+      ApplicationSeeds.dataset = "test_data_set"
+    end
+
+    describe "when fetching seed data" do
+      before do
+        @person = ApplicationSeeds.people(:john_walsh)
+      end
+      it "uses UUIDs for the keys" do
+        @person['id'].should == "00000000-0000-0000-0000-002157768310"
+        @person['company_id'].should == 3268618917
+      end
+    end
+  end
+
 end
