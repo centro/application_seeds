@@ -202,6 +202,21 @@ describe "ApplicationSeeds" do
         expect(person['employer_id']).to eql(47393448)
       end
     end
+
+    describe "for attributes containing arrays of labels" do
+      describe "when the target data type matches the attribute name" do
+        it "builds the array of ids" do
+          department = ApplicationSeeds.departments(:engineering)
+          expect(department['people_ids']).to eql([636095969, 487117267, 10284664])
+        end
+      end
+      describe "when specifying the seed data type in the seed data file" do
+        it "should look for the seed data in the specified type file" do
+          department = ApplicationSeeds.departments(:sales)
+          expect(department['employee_ids']).to eql([456, 420015031])
+        end
+      end
+    end
   end
 
   describe "with UUIDs configured for all seed types" do

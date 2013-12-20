@@ -1,0 +1,5 @@
+engineering:
+  people_ids: [joe_smith, jane_doe, john_walsh]
+
+sales:
+  employee_ids: "[sam_jones, ken_adams] (people)"

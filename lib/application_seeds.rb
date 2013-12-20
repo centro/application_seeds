@@ -258,22 +258,48 @@ module ApplicationSeeds
       attributes.each do |key, value|
         new_attributes[key] = value
         if key =~ /^(.*)_id$/ || key =~ /^(.*)_uuid$/
-          type = $1.pluralize
+          new_attributes[key] = replace_single_label($1.pluralize, value)
+        end
 
-          # Handle the case where seed data type cannot be determined by the
-          # name of the attribute -- employer_id: ma_and_pa (companies)
-          if value =~ /\((.*)\)/
-            type = $1
-            value = value.sub(/\((.*)\)/, "").strip
-          end
-
-          if @seed_labels[type]
-            label_ids = @seed_labels[type][value.to_s]
-            new_attributes[key] = label_ids[id_type(type)] if label_ids
-          end
+        if key =~ /^(.*)_ids$/ || key =~ /^(.*)_uuids$/
+          new_attributes[key] = replace_array_of_labels($1.pluralize, value)
         end
       end
       new_attributes
+    end
+
+    def replace_single_label(type, value)
+      # Handle the case where seed data type cannot be determined by the
+      # name of the attribute -- employer_id: ma_and_pa (companies)
+      if value =~ /\((.*)\)/
+        type = $1
+        value = value.sub(/\((.*)\)/, "").strip
+      end
+
+      if @seed_labels[type]
+        label_ids = @seed_labels[type][value.to_s]
+        value = label_ids[id_type(type)] if label_ids
+      end
+      value
+    end
+
+    def replace_array_of_labels(type, value)
+      # Handle the case where seed data type cannot be determined by the
+      # name of the attribute -- employer_ids: [ma_and_pa, super_corp] (companies)
+      if value =~ /\((.*)\)/
+        type = $1
+        value = value.sub(/\((.*)\)/, "").strip
+        value =~ /^\[(.*)\]$/
+        value = $1.split(',').map(&:strip)
+      end
+
+      if @seed_labels[type]
+        value = value.map do |v|
+          label_ids = @seed_labels[type][v.to_s]
+          (label_ids && label_ids[id_type(type)]) || v
+        end
+      end
+      value
     end
 
     def seed_data_path
