@@ -169,7 +169,7 @@ fixtures files.
 Here is an example from the `people.yml` file in this library's test
 suite:
 
-```ruby
+```
 joe_smith:
   first_name: Joe
   last_name: Smith
