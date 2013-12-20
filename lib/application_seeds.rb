@@ -343,8 +343,9 @@ module ApplicationSeeds
       end
     end
 
+    MAX_ID = 2 ** 30 - 1
     def generate_unique_ids(seed_type, label)
-      checksum = Zlib.crc32(seed_type + label)
+      checksum = Zlib.crc32(seed_type + label) % MAX_ID
       generate_ids(checksum)
     end
 

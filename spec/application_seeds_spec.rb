@@ -101,7 +101,7 @@ describe "ApplicationSeeds" do
         @object = ApplicationSeeds.create_object!(Person, @attributes['id'], @attributes)
       end
       it "assigns the id" do
-        expect(@object.id).to eql(1709837792)
+        expect(@object.id).to eql(636095969)
       end
       it "assigns the attributes" do
         expect(@object.attributes).to eql(@attributes.reject { |k,v| k == "bogus_attribute" })
@@ -138,14 +138,14 @@ describe "ApplicationSeeds" do
 
     describe "fetching seed data by id" do
       it "can find the seed with an integer id" do
-        person = ApplicationSeeds.people(1560859090)
-        expect(person['id']).to eql(1560859090)
+        person = ApplicationSeeds.people(487117267)
+        expect(person['id']).to eql(487117267)
         expect(person['first_name']).to eql("Jane")
         expect(person['last_name']).to eql("Doe")
       end
       it "can find the seed with an string id" do
-        person = ApplicationSeeds.people("1560859090")
-        expect(person['id']).to eql(1560859090)
+        person = ApplicationSeeds.people("487117267")
+        expect(person['id']).to eql(487117267)
         expect(person['first_name']).to eql("Jane")
         expect(person['last_name']).to eql("Doe")
       end
@@ -168,7 +168,7 @@ describe "ApplicationSeeds" do
         expect(people.values.last['first_name']).to eql("Jane")
       end
       it "can find elements using the id instead of the label" do
-        people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 3268618917)
+        people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 47393448)
         expect(people.size).to eql(1)
         expect(people.values.first['first_name']).to eql("John")
         expect(people.values.first['last_name']).to eql("Walsh")
@@ -199,7 +199,7 @@ describe "ApplicationSeeds" do
     describe "when specifying the seed data type in the seed data file" do
       it "should look for the seed data in the specified type file" do
         person = ApplicationSeeds.people(:ken_adams)
-        expect(person['employer_id']).to eql(3268618917)
+        expect(person['employer_id']).to eql(47393448)
       end
     end
   end
@@ -216,8 +216,8 @@ describe "ApplicationSeeds" do
         @person = ApplicationSeeds.people(:john_walsh)
       end
       it "uses UUIDs for the keys" do
-        expect(@person['id']).to eql("00000000-0000-0000-0000-002157768310")
-        expect(@person['company_id']).to eql("00000000-0000-0000-0000-003268618917")
+        expect(@person['id']).to eql("00000000-0000-0000-0000-000010284664")
+        expect(@person['company_id']).to eql("00000000-0000-0000-0000-000047393448")
       end
     end
   end
@@ -234,8 +234,8 @@ describe "ApplicationSeeds" do
         @person = ApplicationSeeds.people(:john_walsh)
       end
       it "uses UUIDs for the keys" do
-        expect(@person['id']).to eql("00000000-0000-0000-0000-002157768310")
-        expect(@person['company_id']).to eql(3268618917)
+        expect(@person['id']).to eql("00000000-0000-0000-0000-000010284664")
+        expect(@person['company_id']).to eql(47393448)
       end
     end
   end
