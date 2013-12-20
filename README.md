@@ -160,6 +160,109 @@ Then, you can seed a remote database by running the following:
     bundle exec cap <environment> deploy:application_seeds -s dataset=your_data_set
 
 
+## The Seed Files
+
+The seed files contain the data that the Rake task works with to
+populate the database.  The seed files look and work much like Rails
+fixtures files.
+
+Here is an example from the `people.yml` file in this library's test
+suite:
+
+```ruby
+joe_smith:
+  first_name: Joe
+  last_name: Smith
+  company_id: mega_corp
+  start_date: <%= 2.months.ago.to_date %>
+
+jane_doe:
+  first_name: Jane
+  last_name: Doe
+  company_id: mega_corp
+  start_date: <%= 10.months.ago.to_date %>
+```
+
+Seed data must contain a label that is unique to the file.
+
+
+### ERB
+
+Seed files may contain ERB snippets to support more dynamic data, or
+data that may change over time.
+
+
+### Establishing relationships
+
+Relationships can be established between seed data files using labels.
+One piece of seed data can specify a `belongs_to` relationship with
+another piece of seed data by specifying the other data's label in the
+`_id` field.
+
+In this example, `ApplicationSeeds` will look in the `companies.yml`
+file for a seed data element with the label `mega_corp`.
+```ruby
+  company_id: mega_corp
+```
+
+If the `_id` field does not share a name with the file that the
+corresponding seed data can be found, you can specify the name of the
+seed file, like so:
+
+```ruby
+  employer_id: mega_corp (companies)
+```
+
+
+#### Many to Many
+
+Many to many relationships can be specified using arrays.  The name of
+the field must end in `ids` or `uuids`.
+
+```ruby
+  company_ids: [mega_corp, ma_and_pa]
+```
+
+If the `_ids` field does not share a name with the file that the
+corresponding seed data can be found, you can specify the name of the
+seed file, like so:
+
+```ruby
+  employer_ids: "[mega_corp, ma_and_pa] (companies)"
+```
+
+Here, the array must be enclosed in a string, to prevent the YAML parser
+from erroring out due to invalid YAML syntax.
+
+
+### Hard coding IDs
+
+By default, `ApplicationSeeds` will generate a unique ID for each piece
+of seed data based on the name of the file containing the data and the
+data's label.  The IDs will not change, as long as the name of the file
+containing the seed data and the labels do not change.
+
+If you need to specify a specific id for a piece of seed data, you can
+specify the id in the list of attributes.
+
+```ruby
+joe_smith:
+  id: 123
+  first_name: Joe
+  last_name: Smith
+  company_id: mega_corp
+  start_date: <%= 2.months.ago.to_date %>
+```
+
+`ApplicationSeeds` will not generate an ID for you if one has been
+specified.
+
+
+### Examples
+
+See `spec/seed_data/test_data_set` for more examples of seed data files.
+
+
 ## Configuration
 
 The `ApplicationSeeds` module can generate integer or UUID ids.  You can
