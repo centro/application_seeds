@@ -1,30 +1,7 @@
 require 'capistrano'
 
-module ApplicationSeeds
-  module Capistrano
-
-    def self.load_into(configuration)
-      configuration.load do
-        set :dataset, ""
-
-        namespace :deploy do
-          task :application_seeds do
-            raise "You cannot run this task in the production environment" if rails_env == "production"
-
-            if dataset == ""
-              run %Q{cd #{latest_release} && #{rake} RAILS_ENV=#{rails_env} db:seed}
-            else
-              run %Q{cd #{latest_release} && #{rake} RAILS_ENV=#{rails_env} application_seeds:load\[#{dataset}\]}
-            end
-          end
-        end
-      end
-    end
-
-  end
+if defined?(Capistrano::VERSION) && Gem::Version.new(Capistrano::VERSION).release >= Gem::Version.new('3.0.0')
+    load File.expand_path('capistrano/tasks/application_seeds.rake', File.dirname(__FILE__))
+else
+    require_relative 'capistrano2'
 end
-
-if Capistrano::Configuration.instance
-  ApplicationSeeds::Capistrano.load_into(Capistrano::Configuration.instance)
-end
-
