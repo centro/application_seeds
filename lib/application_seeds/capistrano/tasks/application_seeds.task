@@ -6,7 +6,7 @@ namespace :deploy do
 
     within fetch(:latest_release_directory)
       with rails_env: fetch(:rails_env) do
-        if fetch(:dataset) == ""
+        if fetch(:dataset) == "" || fetch(:dataset).nil?
           execute :rake, 'db:seed'
         else
           execute :rake, "application_seeds:load\[#{dataset}\]"
