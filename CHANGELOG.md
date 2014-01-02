@@ -1,4 +1,4 @@
-v0.2.0, ????-??-??
+v0.2.0, 2013-12-27
 ------------------
 
   * Changed the seed data file format from a YAML Array to a YAML Hash
