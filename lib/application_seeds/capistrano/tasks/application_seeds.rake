@@ -6,7 +6,7 @@ namespace :deploy do
         raise "You cannot run this task in the production environment"
       end
 
-      within "/data/#{fetch(:app_name)/current" do
+      within "/data/#{fetch(:app_name)}/current" do
         with rails_env: fetch(:rails_env) do
           if fetch(:dataset) == "" || fetch(:dataset).nil?
             execute :rake, 'db:seed'
