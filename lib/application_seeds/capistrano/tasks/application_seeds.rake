@@ -11,7 +11,7 @@ namespace :deploy do
           if fetch(:dataset) == "" || fetch(:dataset).nil?
             execute :rake, 'db:seed'
           else
-            execute :rake, "application_seeds:load\[#{dataset}\]"
+            execute :rake, "application_seeds:load\[#{fetch(:dataset)}\]"
           end
         end
       end
