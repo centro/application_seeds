@@ -6,6 +6,7 @@ module ApplicationSeeds
         set :dataset, ""
 
         namespace :deploy do
+          desc "Populate the application's database with application_seed data"
           task :application_seeds do
             raise "You cannot run this task in the production environment" if rails_env == "production"
 
