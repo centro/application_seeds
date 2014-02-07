@@ -34,12 +34,12 @@ the YAML files into a gem.  The gem should have the following directory
 structure:
 
 ```
-lib
- +-- seeds
-      |-- seed_data_set_1
+lib/
+ +-- seeds/
+      |-- seed_data_set_1/
       |    |-- some_data.yml
       |    +-- some_other_data.yml
-      +-- seed_data_set_2  
+      +-- seed_data_set_2/
            |-- some_data.yml
            +-- some_other_data.yml
 ```
@@ -63,11 +63,11 @@ be identical to what is described above in the "Via a gem" section, but the `lib
 diretory is not required.
 
 ```
-seeds
- |-- seed_data_set_1
+seeds/
+ |-- seed_data_set_1/
  |    |-- some_data.yml
  |    +-- some_other_data.yml
- +-- seed_data_set_2  
+ +-- seed_data_set_2/
       |-- some_data.yml
       +-- some_other_data.yml
 ```
@@ -175,12 +175,12 @@ seed data files that are stored in the parent directories.  For example,
 let's look at the following directory structure:
 
 ```
-seeds
- +-- parent_data_set
+seeds/
+ +-- parent_data_set/
       |-- companies.yml
-      +-- child_data_set
+      +-- child_data_set/
           |-- departments.yml
-          +-- grandchild_data_set
+          +-- grandchild_data_set/
               +-- people.yml
 ```
 
