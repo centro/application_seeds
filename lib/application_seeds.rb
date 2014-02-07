@@ -86,6 +86,7 @@ module ApplicationSeeds
     # Specify any configuration, such as the type of ids to generate (:integer or :uuid).
     #
     def config=(config)
+      warn "WARNING!  Calling ApplicationSeeds.config= after dataset has been set (ApplicationSeeds.dataset=) may not produce expected results." unless @dataset.nil?
       @_config = config
     end
 
