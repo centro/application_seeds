@@ -274,6 +274,7 @@ describe "ApplicationSeeds" do
 
   describe "with UUIDs configured for all seed types" do
     before do
+      ApplicationSeeds.instance_variable_set("@dataset", nil)
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid }
       ApplicationSeeds.dataset = "test_data_set"
@@ -292,6 +293,7 @@ describe "ApplicationSeeds" do
 
   describe "with data type specific key types configured" do
     before do
+      ApplicationSeeds.instance_variable_set("@dataset", nil)
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
       ApplicationSeeds.dataset = "test_data_set"
