@@ -140,8 +140,8 @@ module ApplicationSeeds
     # the dataset could not be found.
     #
     def dataset=(dataset)
-      if dataset.nil? || dataset.strip.empty? || !Dir.exist?(File.join(seed_data_path, dataset))
-        datasets = Dir[File.join(seed_data_path, "*")].map { |x| File.basename(x) }.join(', ')
+      if dataset.nil? || dataset.strip.empty? || dataset_path(dataset).nil?
+        datasets = Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
 
         error_message =  "\nERROR: A valid dataset is required!\n"
         error_message << "Usage: bundle exec rake application_seeds:load[your_data_set]\n\n"
@@ -150,6 +150,7 @@ module ApplicationSeeds
       end
 
       store_dataset(dataset)
+      find_seed_data_files(dataset)
       process_labels(dataset)
       load_seed_data(dataset)
       @dataset = dataset
@@ -241,7 +242,7 @@ module ApplicationSeeds
 
     def load_seed_data(dataset)
       @seed_data = {}
-      seed_files(dataset).each do |seed_file|
+      @seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
         data = YAML.load(ERB.new(File.read(seed_file)).result)
         if data
@@ -313,6 +314,10 @@ module ApplicationSeeds
       end
     end
 
+    def dataset_path(dataset)
+      Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
+    end
+
     def fetch(type, &block)
       result = {}
       @seed_data[type].each do |label, attrs|
@@ -350,11 +355,20 @@ module ApplicationSeeds
       Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{dataset}');")
     end
 
+    def find_seed_data_files(dataset)
+      @seed_data_files = []
+      path = dataset_path(dataset)
+      while (seed_data_path != path) do
+        @seed_data_files.concat(Dir[File.join(path, "*.yml")])
+        path.sub!(/\/[^\/]+$/, "")
+      end
+    end
+
     def process_labels(dataset)
       return @seed_labels unless @seed_labels.nil?
 
       @seed_labels = {}
-      seed_files(dataset).each do |seed_file|
+      @seed_data_files.each do |seed_file|
         seed_type = File.basename(seed_file, ".yml")
         @seed_labels[seed_type] = {}
 
@@ -377,10 +391,6 @@ module ApplicationSeeds
 
     def generate_ids(id)
       { :integer => id, :uuid => "00000000-0000-0000-0000-%012d" % id }
-    end
-
-    def seed_files(dataset)
-      Dir[File.join(seed_data_path, dataset, "*.yml")]
     end
 
     def id_type(type)

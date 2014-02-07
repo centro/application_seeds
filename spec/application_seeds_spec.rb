@@ -9,6 +9,24 @@ class Person
   end
 end
 
+class Company
+  attr_accessor :attributes, :id, :saved
+  attr_accessor :name
+
+  def save!(options={})
+    @saved = true
+  end
+end
+
+class Department
+  attr_accessor :attributes, :id, :saved
+  attr_accessor :name
+
+  def save!(options={})
+    @saved = true
+  end
+end
+
 describe "ApplicationSeeds" do
   before do
     ApplicationSeeds.data_directory = File.join(File.dirname(__FILE__), "seed_data")
@@ -215,6 +233,28 @@ describe "ApplicationSeeds" do
           department = ApplicationSeeds.departments(:sales)
           expect(department['employee_ids']).to eql([456, 420015031])
         end
+      end
+    end
+  end
+
+  describe "with a nested dataset" do
+    before do
+      ApplicationSeeds.stub(:store_dataset)
+      ApplicationSeeds.dataset = "level_3"
+    end
+
+    describe "finding seed data" do
+      it "can find data at the root level" do
+        company = ApplicationSeeds.companies(:mega_corp)
+        expect(company['name']).to eql("Megacorp")
+      end
+      it "can find data at the middle level" do
+        department = ApplicationSeeds.departments(:engineering)
+        expect(department['name']).to eql("Engineering")
+      end
+      it "can find data at the lowest level" do
+        person = ApplicationSeeds.people(:joe_smith)
+        expect(person['first_name']).to eql("Joe")
       end
     end
   end

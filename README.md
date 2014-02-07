@@ -160,6 +160,41 @@ Then, you can seed a remote database by running the following:
     bundle exec cap <environment> deploy:application_seeds -s dataset=your_data_set
 
 
+## The Datasets
+
+The `application_seeds` library supports multiple datasets within the
+same source (place on the file system, gem, etc).  The user specifies
+which dataset to load when beginning to work with the seed data.
+
+    ApplicationSeeds.dataset = "my_data_set"
+
+### Nested Datasets
+
+Datasets can be structured so that child directories can inherit the
+seed data files that are stored in the parent directories.  For example,
+let's look at the following directory structure:
+
+```
+seeds
+ +-- parent_data_set
+      |-- companies.yml
+      +-- child_data_set
+          |-- departments.yml
+          +-- grandchild_data_set
+              +-- people.yml
+```
+
+In this example, if the `grandchild_data_set` is loaded, you will have
+access to the seed data files in `grandchild_data_set`,
+`child_data_set`, and `parent_data_set`.  Because of this, data from
+`people.yml`, `departments.yml`, and `companies.yml` can be loaded.
+
+If `child_data_set` is loaded, you will have access to the seed data
+files in `child_data_set` and `parent_data_set`, but **not**
+`grandchild_data_set`.  This includes the `departments.yml` and
+`companies.yml` data files.
+
+
 ## The Seed Files
 
 The seed files contain the data that the Rake task works with to
