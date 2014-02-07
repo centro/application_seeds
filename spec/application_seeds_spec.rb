@@ -256,6 +256,12 @@ describe "ApplicationSeeds" do
         person = ApplicationSeeds.people(:joe_smith)
         expect(person['first_name']).to eql("Joe")
       end
+      it "can merge data from different levels" do
+        person = ApplicationSeeds.people(:joe_smith)
+        expect(person['first_name']).to eql("Joe")
+        person = ApplicationSeeds.people(:sam_jones)
+        expect(person['first_name']).to eql("Sam")
+      end
     end
   end
 

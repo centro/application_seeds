@@ -249,7 +249,12 @@ module ApplicationSeeds
           data.each do |label, attributes|
             data[label] = replace_labels_with_ids(attributes)
           end
-          @seed_data[basename] = data
+
+          if @seed_data[basename].nil?
+            @seed_data[basename] = data
+          else
+            @seed_data[basename].merge!(data)
+          end
         end
       end
     end
