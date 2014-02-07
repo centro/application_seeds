@@ -2,6 +2,7 @@ v?.?.?, ????-??-??
 ------------------
 
   * Added support for nested/inheritable datasets
+  * Warn user if `config=` is called after `dataset=`
 
 
 v0.3.0, 2014-01-09
