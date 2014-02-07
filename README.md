@@ -194,7 +194,6 @@ files in `child_data_set` and `parent_data_set`, but **not**
 `grandchild_data_set`.  This includes the `departments.yml` and
 `companies.yml` data files.
 
-
 ### Merging Data Files
 
 It is possible to have files for the same data type scattered throughout
