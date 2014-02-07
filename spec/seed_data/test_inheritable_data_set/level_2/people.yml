@@ -6,7 +6,7 @@ sam_jones:
   start_date: <%= 10.years.ago.to_date %>
 
 ken_adams:
-  first_name: Ken
+  first_name: Kenneth
   last_name: Adams
   employer_id: ma_and_pa (companies)
   start_date: <%= 10.years.ago.to_date %>

@@ -253,7 +253,7 @@ module ApplicationSeeds
           if @seed_data[basename].nil?
             @seed_data[basename] = data
           else
-            @seed_data[basename].merge!(data)
+            @seed_data[basename] = data.merge(@seed_data[basename])
           end
         end
       end

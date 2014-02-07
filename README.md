@@ -195,6 +195,31 @@ files in `child_data_set` and `parent_data_set`, but **not**
 `companies.yml` data files.
 
 
+### Merging Data Files
+
+It is possible to have files for the same data type scattered throughout
+the dataset hierarchy.
+
+```
+seeds/
+ +-- parent_data_set/
+      |-- companies.yml
+      |-- people.yml
+      +-- child_data_set/
+          |-- departments.yml
+          |-- people.yml
+          +-- grandchild_data_set/
+              +-- people.yml
+```
+
+In this example, when data is loaded from the `people` dataset via call
+to `ApplicationSeeds.people`, then the result will contain the data from
+all three files.
+
+If the files contain conflicting labels, then precedence is given to
+data at the lowest level (`grandchild_data_set` in this example).
+
+
 ## The Seed Files
 
 The seed files contain the data that the Rake task works with to

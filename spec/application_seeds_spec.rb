@@ -256,11 +256,18 @@ describe "ApplicationSeeds" do
         person = ApplicationSeeds.people(:joe_smith)
         expect(person['first_name']).to eql("Joe")
       end
+    end
+
+    describe "merging seed data" do
       it "can merge data from different levels" do
         person = ApplicationSeeds.people(:joe_smith)
         expect(person['first_name']).to eql("Joe")
         person = ApplicationSeeds.people(:sam_jones)
         expect(person['first_name']).to eql("Sam")
+      end
+      it "gives the data in lower levels precendence" do
+        person = ApplicationSeeds.people(:ken_adams)
+        expect(person['first_name']).to eql("Ken")
       end
     end
   end
