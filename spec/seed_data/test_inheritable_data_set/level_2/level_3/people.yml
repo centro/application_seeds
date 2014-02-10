@@ -1,0 +1,26 @@
+joe_smith:
+  first_name: Joe
+  last_name: Smith
+  company_id: mega_corp
+  start_date: <%= 2.months.ago.to_date %>
+  bogus_attribute: foo
+
+jane_doe:
+  first_name: Jane
+  last_name: Doe
+  company_id: mega_corp
+  start_date: <%= 10.months.ago.to_date %>
+  bogus_attribute: foo
+
+john_walsh:
+  first_name: John
+  last_name: Walsh
+  company_id: ma_and_pa
+  start_date: <%= 10.years.ago.to_date %>
+  bogus_attribute: foo
+
+ken_adams:
+  first_name: Ken
+  last_name: Adams
+  employer_id: ma_and_pa (companies)
+  start_date: <%= 10.years.ago.to_date %>

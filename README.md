@@ -34,12 +34,12 @@ the YAML files into a gem.  The gem should have the following directory
 structure:
 
 ```
-lib
- +-- seeds
-      |-- seed_data_set_1
+lib/
+ +-- seeds/
+      |-- seed_data_set_1/
       |    |-- some_data.yml
       |    +-- some_other_data.yml
-      +-- seed_data_set_2  
+      +-- seed_data_set_2/
            |-- some_data.yml
            +-- some_other_data.yml
 ```
@@ -63,11 +63,11 @@ be identical to what is described above in the "Via a gem" section, but the `lib
 diretory is not required.
 
 ```
-seeds
- |-- seed_data_set_1
+seeds/
+ |-- seed_data_set_1/
  |    |-- some_data.yml
  |    +-- some_other_data.yml
- +-- seed_data_set_2  
+ +-- seed_data_set_2/
       |-- some_data.yml
       +-- some_other_data.yml
 ```
@@ -158,6 +158,65 @@ Add the following line to your deploy.rb file:
 Then, you can seed a remote database by running the following:
 
     bundle exec cap <environment> deploy:application_seeds -s dataset=your_data_set
+
+
+## The Datasets
+
+The `application_seeds` library supports multiple datasets within the
+same source (place on the file system, gem, etc).  The user specifies
+which dataset to load when beginning to work with the seed data.
+
+    ApplicationSeeds.dataset = "my_data_set"
+
+### Nested Datasets
+
+Datasets can be structured so that child directories can inherit the
+seed data files that are stored in the parent directories.  For example,
+let's look at the following directory structure:
+
+```
+seeds/
+ +-- parent_data_set/
+      |-- companies.yml
+      +-- child_data_set/
+          |-- departments.yml
+          +-- grandchild_data_set/
+              +-- people.yml
+```
+
+In this example, if the `grandchild_data_set` is loaded, you will have
+access to the seed data files in `grandchild_data_set`,
+`child_data_set`, and `parent_data_set`.  Because of this, data from
+`people.yml`, `departments.yml`, and `companies.yml` can be loaded.
+
+If `child_data_set` is loaded, you will have access to the seed data
+files in `child_data_set` and `parent_data_set`, but **not**
+`grandchild_data_set`.  This includes the `departments.yml` and
+`companies.yml` data files.
+
+### Merging Data Files
+
+It is possible to have files for the same data type scattered throughout
+the dataset hierarchy.
+
+```
+seeds/
+ +-- parent_data_set/
+      |-- companies.yml
+      |-- people.yml
+      +-- child_data_set/
+          |-- departments.yml
+          |-- people.yml
+          +-- grandchild_data_set/
+              +-- people.yml
+```
+
+In this example, when data is loaded from the `people` dataset via call
+to `ApplicationSeeds.people`, then the result will contain the data from
+all three files.
+
+If the files contain conflicting labels, then precedence is given to
+data at the lowest level (`grandchild_data_set` in this example).
 
 
 ## The Seed Files

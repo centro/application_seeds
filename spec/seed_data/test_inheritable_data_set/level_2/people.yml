@@ -1,0 +1,12 @@
+sam_jones:
+  id: 456
+  first_name: Sam
+  last_name: Jones
+  company_id: 123
+  start_date: <%= 10.years.ago.to_date %>
+
+ken_adams:
+  first_name: Kenneth
+  last_name: Adams
+  employer_id: ma_and_pa (companies)
+  start_date: <%= 10.years.ago.to_date %>

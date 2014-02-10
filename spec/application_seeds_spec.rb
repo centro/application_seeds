@@ -9,6 +9,24 @@ class Person
   end
 end
 
+class Company
+  attr_accessor :attributes, :id, :saved
+  attr_accessor :name
+
+  def save!(options={})
+    @saved = true
+  end
+end
+
+class Department
+  attr_accessor :attributes, :id, :saved
+  attr_accessor :name
+
+  def save!(options={})
+    @saved = true
+  end
+end
+
 describe "ApplicationSeeds" do
   before do
     ApplicationSeeds.data_directory = File.join(File.dirname(__FILE__), "seed_data")
@@ -219,8 +237,44 @@ describe "ApplicationSeeds" do
     end
   end
 
+  describe "with a nested dataset" do
+    before do
+      ApplicationSeeds.stub(:store_dataset)
+      ApplicationSeeds.dataset = "level_3"
+    end
+
+    describe "finding seed data" do
+      it "can find data at the root level" do
+        company = ApplicationSeeds.companies(:mega_corp)
+        expect(company['name']).to eql("Megacorp")
+      end
+      it "can find data at the middle level" do
+        department = ApplicationSeeds.departments(:engineering)
+        expect(department['name']).to eql("Engineering")
+      end
+      it "can find data at the lowest level" do
+        person = ApplicationSeeds.people(:joe_smith)
+        expect(person['first_name']).to eql("Joe")
+      end
+    end
+
+    describe "merging seed data" do
+      it "can merge data from different levels" do
+        person = ApplicationSeeds.people(:joe_smith)
+        expect(person['first_name']).to eql("Joe")
+        person = ApplicationSeeds.people(:sam_jones)
+        expect(person['first_name']).to eql("Sam")
+      end
+      it "gives the data in lower levels precendence" do
+        person = ApplicationSeeds.people(:ken_adams)
+        expect(person['first_name']).to eql("Ken")
+      end
+    end
+  end
+
   describe "with UUIDs configured for all seed types" do
     before do
+      ApplicationSeeds.instance_variable_set("@dataset", nil)
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid }
       ApplicationSeeds.dataset = "test_data_set"
@@ -239,6 +293,7 @@ describe "ApplicationSeeds" do
 
   describe "with data type specific key types configured" do
     before do
+      ApplicationSeeds.instance_variable_set("@dataset", nil)
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
       ApplicationSeeds.dataset = "test_data_set"
