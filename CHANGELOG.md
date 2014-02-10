@@ -1,8 +1,8 @@
-v?.?.?, ????-??-??
+v0.4.0, 2014-02-09
 ------------------
 
   * Added support for nested/inheritable datasets
-  * Warn user if `config=` is called after `dataset=`
+  * Warn user if `ApplicationSeeds.config=` is called after `ApplicationSeeds.dataset=`
 
 
 v0.3.0, 2014-01-09
