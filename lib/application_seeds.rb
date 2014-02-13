@@ -224,7 +224,7 @@ module ApplicationSeeds
 
     def seed_data(type, options)
       type = type.to_s
-      raise "No seed data could be found for '#{type}'" if @seed_data[type].nil?
+      raise "No seed data file could be found for '#{type}'" if @seed_data[type].nil?
 
       if options.nil?
         fetch(type)
