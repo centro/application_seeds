@@ -404,3 +404,7 @@ module ApplicationSeeds
     end
   end
 end
+
+if defined?(ActiveRecord)
+  ActiveRecord::SchemaDumper.ignore_tables = ["application_seeds"]
+end

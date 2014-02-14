@@ -1,3 +1,10 @@
+v0.4.1, 2014-02-14
+------------------
+
+  * Moved code that tells Rails schema dump to ignore the
+    application_seeds table to lib/application_seeds.rb
+
+
 v0.4.0, 2014-02-09
 ------------------
 
