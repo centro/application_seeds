@@ -1,3 +1,10 @@
+v0.4.2, 2014-02-18
+------------------
+
+  * Fixed `seed_data_exists?` to work with new nested/inheritable
+    datasets
+
+
 v0.4.1, 2014-02-14
 ------------------
 
