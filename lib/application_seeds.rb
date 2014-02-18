@@ -190,7 +190,7 @@ module ApplicationSeeds
     #   ApplicationSeeds.seed_data_exists?(:campaigns)
     #
     def seed_data_exists?(type)
-      File.exist?(File.join(seed_data_path, @dataset, "#{type}.yml"))
+      !@seed_data[type.to_s].nil?
     end
 
     #

@@ -98,19 +98,21 @@ describe "ApplicationSeeds" do
     end
   end
 
-  describe "#seed_data_exists?" do
-    it "returns true if the specified seed data exists" do
-      expect(ApplicationSeeds.seed_data_exists?(:people)).to be_true
-    end
-    it "returns false if the specified seed data does not exist" do
-      expect(ApplicationSeeds.seed_data_exists?(:missing)).to_not be_true
-    end
-  end
-
   context "with a valid dataset" do
     before do
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.dataset = "test_data_set"
+    end
+
+    describe "#seed_data_exists?" do
+      it "returns true if the specified seed data exists" do
+        expect(ApplicationSeeds.seed_data_exists?(:people)).to be_true
+        expect(ApplicationSeeds.seed_data_exists?(:companies)).to be_true
+        expect(ApplicationSeeds.seed_data_exists?(:departments)).to be_true
+      end
+      it "returns false if the specified seed data does not exist" do
+        expect(ApplicationSeeds.seed_data_exists?(:missing)).to_not be_true
+      end
     end
 
     describe "#create_object" do
@@ -241,6 +243,17 @@ describe "ApplicationSeeds" do
     before do
       ApplicationSeeds.stub(:store_dataset)
       ApplicationSeeds.dataset = "level_3"
+    end
+
+    describe "#seed_data_exists?" do
+      it "returns true if the specified seed data exists" do
+        expect(ApplicationSeeds.seed_data_exists?(:people)).to be_true
+        expect(ApplicationSeeds.seed_data_exists?(:companies)).to be_true
+        expect(ApplicationSeeds.seed_data_exists?(:departments)).to be_true
+      end
+      it "returns false if the specified seed data does not exist" do
+        expect(ApplicationSeeds.seed_data_exists?(:missing)).to_not be_true
+      end
     end
 
     describe "finding seed data" do
