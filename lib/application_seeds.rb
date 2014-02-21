@@ -154,7 +154,6 @@ module ApplicationSeeds
 
       store_dataset(dataset)
       find_seed_data_files(dataset)
-      parse_files
       process_labels(dataset)
       load_seed_data(dataset)
       @dataset = dataset
@@ -248,7 +247,7 @@ module ApplicationSeeds
       @seed_data = {}
       @seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
-        data = @raw_seed_data[seed_file]
+        data = raw_seed_data[seed_file]
         if data
           data.each do |label, attributes|
             data[label] = replace_labels_with_ids(attributes)
@@ -373,7 +372,9 @@ module ApplicationSeeds
       end
     end
 
-    def parse_files
+    def raw_seed_data
+      return @raw_seed_data unless @raw_seed_data.nil?
+
       @raw_seed_data = {}
       @seed_data_files.each do |seed_file|
         data = YAML.load(ERB.new(File.read(seed_file)).result)
@@ -381,6 +382,7 @@ module ApplicationSeeds
           @raw_seed_data[seed_file] = data
         end
       end
+      @raw_seed_data
     end
 
     def process_labels(dataset)
@@ -391,7 +393,7 @@ module ApplicationSeeds
         seed_type = File.basename(seed_file, ".yml")
         @seed_labels[seed_type] ||= {}
 
-        data = @raw_seed_data[seed_file]
+        data = raw_seed_data[seed_file]
         if data
           data.each do |label, attributes|
             specified_id = attributes['id']
@@ -419,6 +421,7 @@ module ApplicationSeeds
     def clear_cached_data
       @seed_labels = nil
       @seed_data = nil
+      @raw_seed_data = nil
     end
   end
 end
