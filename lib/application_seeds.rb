@@ -192,7 +192,7 @@ module ApplicationSeeds
     #   ApplicationSeeds.seed_data_exists?(:campaigns)
     #
     def seed_data_exists?(type)
-      !@seed_data[type.to_s].nil?
+      !processed_seed_data[type.to_s].nil?
     end
 
     #
@@ -226,7 +226,7 @@ module ApplicationSeeds
 
     def seed_data(type, options)
       type = type.to_s
-      raise "No seed data file could be found for '#{type}'" if @seed_data[type].nil?
+      raise "No seed data file could be found for '#{type}'" if processed_seed_data[type].nil?
 
       if options.nil?
         fetch(type)
@@ -244,7 +244,7 @@ module ApplicationSeeds
     end
 
     def load_seed_data(dataset)
-      @seed_data = {}
+      @processed_seed_data = {}
       @seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
         data = raw_seed_data[seed_file]
@@ -253,13 +253,17 @@ module ApplicationSeeds
             data[label] = replace_labels_with_ids(attributes)
           end
 
-          if @seed_data[basename].nil?
-            @seed_data[basename] = data
+          if processed_seed_data[basename].nil?
+            processed_seed_data[basename] = data
           else
-            @seed_data[basename] = data.merge(@seed_data[basename])
+            processed_seed_data[basename] = data.merge(processed_seed_data[basename])
           end
         end
       end
+    end
+
+    def processed_seed_data
+      @processed_seed_data
     end
 
     def replace_labels_with_ids(attributes)
@@ -328,7 +332,7 @@ module ApplicationSeeds
 
     def fetch(type, &block)
       result = {}
-      @seed_data[type].each do |label, attrs|
+      processed_seed_data[type].each do |label, attrs|
         attributes = attrs.clone
         id = @seed_labels[type][label][id_type(type)]
         if !block_given? || (block_given? && yield(attributes) == true)
@@ -342,7 +346,7 @@ module ApplicationSeeds
       data = nil
       @seed_labels[type].each do |label, ids|
         if ids.values.map(&:to_s).include?(id.to_s)
-          data = @seed_data[type][label]
+          data = processed_seed_data[type][label]
           data['id'] = @seed_labels[type][label][id_type(type)]
           break
         end
@@ -352,7 +356,7 @@ module ApplicationSeeds
     end
 
     def fetch_with_label(type, label)
-      data = @seed_data[type][label]
+      data = processed_seed_data[type][label]
       raise "No seed data could be found for '#{type}' with label #{label}" if data.nil?
       data['id'] = @seed_labels[type][label][id_type(type)]
       Attributes.new(data)
@@ -420,7 +424,7 @@ module ApplicationSeeds
 
     def clear_cached_data
       @seed_labels = nil
-      @seed_data = nil
+      @processed_seed_data = nil
       @raw_seed_data = nil
     end
   end
