@@ -142,6 +142,7 @@ module ApplicationSeeds
     #
     def dataset=(dataset)
       clear_cached_data
+      @dataset = dataset
 
       if dataset.nil? || dataset.strip.empty? || dataset_path(dataset).nil?
         datasets = Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
@@ -152,11 +153,7 @@ module ApplicationSeeds
         raise error_message
       end
 
-      store_dataset(dataset)
-      find_seed_data_files(dataset)
-      process_labels(dataset)
-      load_seed_data(dataset)
-      @dataset = dataset
+      store_dataset
     end
 
     #
@@ -220,32 +217,77 @@ module ApplicationSeeds
 
     private
 
-    def method_missing(method, *args)
-      self.send(:seed_data, method, args.shift)
+    def dataset_path(dataset)
+      Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
     end
 
-    def seed_data(type, options)
-      type = type.to_s
-      raise "No seed data file could be found for '#{type}'" if processed_seed_data[type].nil?
+    def store_dataset
+      Database.create_metadata_table
+      Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{@dataset}');")
+    end
 
-      if options.nil?
-        fetch(type)
-      elsif options.is_a?(Fixnum) || options.is_a?(String)
-        fetch_with_id(type, options)
-      elsif options.is_a?(Symbol)
-        fetch_with_label(type, options.to_s)
-      elsif options.is_a? Hash
-        fetch(type) do |attributes|
-          options.stringify_keys!
-          options = replace_labels_with_ids(options)
-          (options.to_a - attributes.to_a).empty?
+    def seed_data_path
+      return @seed_data_path unless @seed_data_path.nil?
+
+      if data_directory
+        @seed_data_path = data_directory
+      else
+        spec = Gem::Specification.find_by_name(data_gem_name)
+        @seed_data_path = File.join(spec.gem_dir, "lib", "seeds")
+      end
+      @seed_data_path
+    end
+
+    def seed_data_files
+      return @seed_data_files unless @seed_data_files.nil?
+
+      @seed_data_files = []
+      path = dataset_path(@dataset)
+      while (seed_data_path != path) do
+        @seed_data_files.concat(Dir[File.join(path, "*.yml")])
+        path.sub!(/\/[^\/]+$/, "")
+      end
+      @seed_data_files
+    end
+
+    def raw_seed_data
+      return @raw_seed_data unless @raw_seed_data.nil?
+
+      @raw_seed_data = {}
+      seed_data_files.each do |seed_file|
+        data = YAML.load(ERB.new(File.read(seed_file)).result)
+        if data
+          @raw_seed_data[seed_file] = data
         end
       end
+      @raw_seed_data
     end
 
-    def load_seed_data(dataset)
+    def seed_labels
+      return @seed_labels unless @seed_labels.nil?
+
+      @seed_labels = {}
+      seed_data_files.each do |seed_file|
+        seed_type = File.basename(seed_file, ".yml")
+        @seed_labels[seed_type] ||= {}
+
+        data = raw_seed_data[seed_file]
+        if data
+          data.each do |label, attributes|
+            specified_id = attributes['id']
+            ids = specified_id.nil? ? generate_unique_ids(seed_type, label) : generate_ids(specified_id)
+            @seed_labels[seed_type][label] = ids
+          end
+        end
+      end
+      @seed_labels
+    end
+
+    def processed_seed_data
+      return @processed_seed_data unless @processed_seed_data.nil?
+
       @processed_seed_data = {}
-      @seed_data_files.each do |seed_file|
+      seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
         data = raw_seed_data[seed_file]
         if data
@@ -260,9 +302,6 @@ module ApplicationSeeds
           end
         end
       end
-    end
-
-    def processed_seed_data
       @processed_seed_data
     end
 
@@ -289,8 +328,8 @@ module ApplicationSeeds
         value = value.sub(/\((.*)\)/, "").strip
       end
 
-      if @seed_labels[type]
-        label_ids = @seed_labels[type][value.to_s]
+      if seed_labels[type]
+        label_ids = seed_labels[type][value.to_s]
         value = label_ids[id_type(type)] if label_ids
       end
       value
@@ -306,35 +345,43 @@ module ApplicationSeeds
         value = $1.split(',').map(&:strip)
       end
 
-      if @seed_labels[type]
+      if seed_labels[type]
         value = value.map do |v|
-          label_ids = @seed_labels[type][v.to_s]
+          label_ids = seed_labels[type][v.to_s]
           (label_ids && label_ids[id_type(type)]) || v
         end
       end
       value
     end
 
-    def seed_data_path
-      return @seed_data_path unless @seed_data_path.nil?
-
-      if data_directory
-        @seed_data_path = data_directory
-      else
-        spec = Gem::Specification.find_by_name(data_gem_name)
-        @seed_data_path = File.join(spec.gem_dir, "lib", "seeds")
-      end
+    def method_missing(method, *args)
+      self.send(:seed_data, method, args.shift)
     end
 
-    def dataset_path(dataset)
-      Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
+    def seed_data(type, options)
+      type = type.to_s
+      raise "No seed data file could be found for '#{type}'" if processed_seed_data[type].nil?
+
+      if options.nil?
+        fetch(type)
+      elsif options.is_a?(Fixnum) || options.is_a?(String)
+        fetch_with_id(type, options)
+      elsif options.is_a?(Symbol)
+        fetch_with_label(type, options.to_s)
+      elsif options.is_a? Hash
+        fetch(type) do |attributes|
+          options.stringify_keys!
+          options = replace_labels_with_ids(options)
+          (options.to_a - attributes.to_a).empty?
+        end
+      end
     end
 
     def fetch(type, &block)
       result = {}
       processed_seed_data[type].each do |label, attrs|
         attributes = attrs.clone
-        id = @seed_labels[type][label][id_type(type)]
+        id = seed_labels[type][label][id_type(type)]
         if !block_given? || (block_given? && yield(attributes) == true)
           result[id] = Attributes.new(attributes)
         end
@@ -344,10 +391,10 @@ module ApplicationSeeds
 
     def fetch_with_id(type, id)
       data = nil
-      @seed_labels[type].each do |label, ids|
+      seed_labels[type].each do |label, ids|
         if ids.values.map(&:to_s).include?(id.to_s)
           data = processed_seed_data[type][label]
-          data['id'] = @seed_labels[type][label][id_type(type)]
+          data['id'] = seed_labels[type][label][id_type(type)]
           break
         end
       end
@@ -358,54 +405,8 @@ module ApplicationSeeds
     def fetch_with_label(type, label)
       data = processed_seed_data[type][label]
       raise "No seed data could be found for '#{type}' with label #{label}" if data.nil?
-      data['id'] = @seed_labels[type][label][id_type(type)]
+      data['id'] = seed_labels[type][label][id_type(type)]
       Attributes.new(data)
-    end
-
-    def store_dataset(dataset)
-      Database.create_metadata_table
-      Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{dataset}');")
-    end
-
-    def find_seed_data_files(dataset)
-      @seed_data_files = []
-      path = dataset_path(dataset)
-      while (seed_data_path != path) do
-        @seed_data_files.concat(Dir[File.join(path, "*.yml")])
-        path.sub!(/\/[^\/]+$/, "")
-      end
-    end
-
-    def raw_seed_data
-      return @raw_seed_data unless @raw_seed_data.nil?
-
-      @raw_seed_data = {}
-      @seed_data_files.each do |seed_file|
-        data = YAML.load(ERB.new(File.read(seed_file)).result)
-        if data
-          @raw_seed_data[seed_file] = data
-        end
-      end
-      @raw_seed_data
-    end
-
-    def process_labels(dataset)
-      return @seed_labels unless @seed_labels.nil?
-
-      @seed_labels = {}
-      @seed_data_files.each do |seed_file|
-        seed_type = File.basename(seed_file, ".yml")
-        @seed_labels[seed_type] ||= {}
-
-        data = raw_seed_data[seed_file]
-        if data
-          data.each do |label, attributes|
-            specified_id = attributes['id']
-            ids = specified_id.nil? ? generate_unique_ids(seed_type, label) : generate_ids(specified_id)
-            @seed_labels[seed_type][label] = ids
-          end
-        end
-      end
     end
 
     MAX_ID = 2 ** 30 - 1
@@ -426,6 +427,7 @@ module ApplicationSeeds
       @seed_labels = nil
       @processed_seed_data = nil
       @raw_seed_data = nil
+      @seed_data_files = nil
     end
   end
 end
