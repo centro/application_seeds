@@ -141,6 +141,8 @@ module ApplicationSeeds
     # the dataset could not be found.
     #
     def dataset=(dataset)
+      clear_cached_data
+
       if dataset.nil? || dataset.strip.empty? || dataset_path(dataset).nil?
         datasets = Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
 
@@ -152,6 +154,7 @@ module ApplicationSeeds
 
       store_dataset(dataset)
       find_seed_data_files(dataset)
+      parse_files
       process_labels(dataset)
       load_seed_data(dataset)
       @dataset = dataset
@@ -245,7 +248,7 @@ module ApplicationSeeds
       @seed_data = {}
       @seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
-        data = YAML.load(ERB.new(File.read(seed_file)).result)
+        data = @raw_seed_data[seed_file]
         if data
           data.each do |label, attributes|
             data[label] = replace_labels_with_ids(attributes)
@@ -370,15 +373,25 @@ module ApplicationSeeds
       end
     end
 
+    def parse_files
+      @raw_seed_data = {}
+      @seed_data_files.each do |seed_file|
+        data = YAML.load(ERB.new(File.read(seed_file)).result)
+        if data
+          @raw_seed_data[seed_file] = data
+        end
+      end
+    end
+
     def process_labels(dataset)
       return @seed_labels unless @seed_labels.nil?
 
       @seed_labels = {}
       @seed_data_files.each do |seed_file|
         seed_type = File.basename(seed_file, ".yml")
-        @seed_labels[seed_type] = {}
+        @seed_labels[seed_type] ||= {}
 
-        data = YAML.load(File.read(seed_file))
+        data = @raw_seed_data[seed_file]
         if data
           data.each do |label, attributes|
             specified_id = attributes['id']
@@ -401,6 +414,11 @@ module ApplicationSeeds
 
     def id_type(type)
       self.config["#{type}_id_type".to_sym] || self.config[:id_type]
+    end
+
+    def clear_cached_data
+      @seed_labels = nil
+      @seed_data = nil
     end
   end
 end
