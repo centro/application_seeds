@@ -1,4 +1,4 @@
-v0.4.3, 2014-??-??
+v0.4.3, 2014-02-22
 ------------------
 
   * Only parse the seed data files once.
