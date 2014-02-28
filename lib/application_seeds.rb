@@ -142,7 +142,7 @@ module ApplicationSeeds
     # been imported, then this should correct them.
     #
     def reset_sequence_numbers
-      result = Database.connection.exec("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+      result = Database.connection.exec("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema')")
       table_names = result.map { |row| row.values_at('table_name')[0] }
 
       table_names_with_id_column = table_names.select do |table_name|
