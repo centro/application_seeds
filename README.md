@@ -322,6 +322,56 @@ specified.
 See `spec/seed_data/test_data_set` for more examples of seed data files.
 
 
+## Config Values
+
+Since the YAML files are first run through ERB, you are able to sprinkle
+ruby code throughout your seed data files.  This allows you to do some
+interesting things:
+
+```ruby
+<% 10.times do |x| %>
+company_<%= x %>:
+  name: Company_<%= x %>
+<% end %>
+```
+
+But `10` here is a magic number.  It would be better if we had a
+variable that better communicated its use.
+
+`ApplicationSeeds` allows you to place a `_config.yml` file in each
+dataset directory.  The data in this file is loaded, and made available
+via the `ApplicationSeeds.config_value` API.
+
+Take the following `_config.yml`:
+
+```ruby
+num_companies: 5
+num_people: 1
+num_departments: 3
+```
+
+You can fetch these values by calling `ApplicationSeeds.config_value`:
+
+```ruby
+ApplicationSeeds.config_value(:num_companies)
+=> 5
+
+ApplicationSeeds.config_value(:num_people)
+=> 1
+
+ApplicationSeeds.config_value(:num_departments)
+=> 3
+```
+
+### Merging config value files
+
+If you are using nested datasets, then all of the appropriate
+`_config.yml` files will be loaded, and all data in those files
+will be available. Config values defined in the lower levels
+are given precedence if there is a naming conflict, allowing the
+lower levels to override values specified in the upper levels.
+
+
 ## Configuration
 
 The `ApplicationSeeds` module can generate integer or UUID ids.  You can
@@ -502,6 +552,17 @@ This method will reset the sequence numbers on id columns for all tables
 in the database with an id column.  If you are having issues where you
 are unable to insert new data into the databse after your dataset has
 been imported, then this should correct them.
+
+
+### Fetch data from the `_config.yml` files
+
+```ruby
+ApplicationSeeds.config_value(:foo)
+```
+
+Fetch the value for the key named `foo` that is defined in the
+`_config.yml` config values files.  Will return nil if no config value
+could be found by that name.
 
 
 ## The Problem

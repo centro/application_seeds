@@ -10,74 +10,10 @@ require "application_seeds/database"
 require "application_seeds/version"
 require "application_seeds/attributes"
 
+#
 # A library for managing a standardized set of seed data for applications in a non-production environment.
 #
-# == The API
-#
-# === Fetching all seeds of a given type
-#
-#   ApplicationSeeds.campaigns  # where "campaigns" is the name of the seed file
-#
-# This call returns a hash with one or more entries (depending on the contentes of the seed file).
-# The IDs of the object are the keys, and a hash containing the object's attributes are the values.
-# An exception is raised if no seed data could be with the given name.
-#
-# === Fetching seed data by label
-#
-#   ApplicationSeeds.campaigns(:label)  # where "campaigns" is the name of the seed file, and :label is the label of the campaign
-#
-# This call returns a hash containing the object's attributes.  An exception is raised if no
-# seed data could be found with the given label.
-#
-# === Fetching seed data by id
-#
-#   ApplicationSeeds.campaigns(12345)  # where "campaigns" is the name of the seed file, and 12345 is the id of the campaign
-#
-# This call returns a hash containing the object's attributes.  An exception is raised if no
-# seed data could be found with the given id.
-#
-# === Fetching seed data by some other attribute
-#
-#   ApplicationSeeds.campaigns(foo: 'bar', name: 'John')  # where "campaigns" is the name of the seed file
-#
-# This call returns the seed data that contains the specified attributes,
-# and the specified attribute values.  It returns a hash with zero or more
-# entries.  The IDs of the object are the keys of the hash, and a hash
-# containing the object's attributes are the values.  Any empty hash will
-# be returned if no seed data could be found with the given attribute names
-# and values.
-#
-# === Creating an object
-#
-#   ApplicationSeeds.create_object!(Campaign, id, attributes)
-#
-# This call will create a new instance of the <tt>Campaign</tt> class, with the
-# specified id and attributes.
-#
-# === Rejecting specific attributes
-#
-#   ApplicationSeeds.create_object!(Campaign, id, attributes.reject_attributes(:unused_attribute))
-#
-# This call will create a new instance of the <tt>Campaign</tt> class without the
-# <tt>unused_attribute</tt> attribute.
-#
-# === Selecting specific attributes
-#
-#   ApplicationSeeds.create_object!(Campaign, id, attributes.select_attributes(:attribute1, :attribute2))
-#
-# This call will create a new instance of the <tt>Campaign</tt> class with only the
-# <tt>attribute1</tt> and <tt>attribute2</tt> attributes.
-#
-# === Mapping attribute names
-#
-#   ApplicationSeeds.create_object!(Campaign, id, attributes.map_attributes(
-#     :old_name1 => :new_name1, :old_name2 => :new_name2))
-#
-# This call will create a new instance of the <tt>Campaign</tt> class, using the
-# seed data for old_name1 as the attribute value for new_name1, and the
-# seed data for old_name2 as the attribute value for new_name2.  This
-# method let's you easly account for slight differences is attribute names
-# across applications.
+# See README.md for API documentation.
 #
 module ApplicationSeeds
   class << self
