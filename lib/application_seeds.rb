@@ -98,6 +98,13 @@ module ApplicationSeeds
     end
 
     #
+    # Fetch data from the _config.yml files.
+    #
+    def config_value(key)
+      config_values[key.to_s]
+    end
+
+    #
     # Specify the name of the gem that contains the application seed data.
     #
     def data_gem_name=(gem_name)
@@ -244,7 +251,8 @@ module ApplicationSeeds
       @seed_data_files = []
       path = dataset_path(@dataset)
       while (seed_data_path != path) do
-        @seed_data_files.concat(Dir[File.join(path, "*.yml")])
+        files = Dir[File.join(path, "*.yml")].reject { |file| file =~ /\/_config.yml$/ }
+        @seed_data_files.concat(files)
         path.sub!(/\/[^\/]+$/, "")
       end
       @seed_data_files
@@ -261,6 +269,20 @@ module ApplicationSeeds
         end
       end
       @raw_seed_data
+    end
+
+    def config_values
+      return @config_values unless @config_values.nil?
+
+      @config_values = {}
+      path = dataset_path(@dataset)
+      while (seed_data_path != path) do
+        config_file = Dir[File.join(path, "_config.yml")].first
+        values = config_file.nil? ? {} : YAML.load(ERB.new(File.read(config_file)).result)
+        @config_values = values.merge(@config_values)
+        path.sub!(/\/[^\/]+$/, "")
+      end
+      @config_values
     end
 
     def seed_labels
@@ -428,6 +450,7 @@ module ApplicationSeeds
       @processed_seed_data = nil
       @raw_seed_data = nil
       @seed_data_files = nil
+      @config_values = nil
     end
   end
 end

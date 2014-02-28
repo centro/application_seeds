@@ -237,6 +237,16 @@ describe "ApplicationSeeds" do
         end
       end
     end
+
+    describe "config values" do
+      it "can fetch config values for the dataset" do
+        expect(ApplicationSeeds.config_value(:num_companies)).to eql(15)
+        expect(ApplicationSeeds.config_value(:num_people)).to eql(100)
+      end
+      it "returns nil if no config value could be found by that name" do
+        expect(ApplicationSeeds.config_value(:whaa)).to be_nil
+      end
+    end
   end
 
   describe "with a nested dataset" do
@@ -281,6 +291,16 @@ describe "ApplicationSeeds" do
       it "gives the data in lower levels precendence" do
         person = ApplicationSeeds.people(:ken_adams)
         expect(person['first_name']).to eql("Ken")
+      end
+    end
+
+    describe "merging config values" do
+      it "can merge data from different levels" do
+        expect(ApplicationSeeds.config_value(:num_companies)).to eql(5)
+        expect(ApplicationSeeds.config_value(:num_departments)).to eql(3)
+      end
+      it "gives the data in lower levels precendence" do
+        expect(ApplicationSeeds.config_value(:num_people)).to eql(10)
       end
     end
   end
