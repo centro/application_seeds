@@ -363,6 +363,16 @@ ApplicationSeeds.config_value(:num_departments)
 => 3
 ```
 
+And use them in your seed files:
+
+```ruby
+<% ApplicationSeeds.config_value(:num_companies).times do |x| %>
+company_<%= x %>:
+  name: Company_<%= x %>
+<% end %>
+```
+
+
 ### Merging config value files
 
 If you are using nested datasets, then all of the appropriate
