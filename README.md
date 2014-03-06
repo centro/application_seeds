@@ -564,6 +564,19 @@ are unable to insert new data into the databse after your dataset has
 been imported, then this should correct them.
 
 
+### Defer referential integrity checks
+
+```ruby
+ApplicationSeeds.defer_referential_integrity_checks do
+  # Process some seed data
+end
+```
+
+This method will defer the enforcement of foreign key contraints while
+the block of code is being executed.  This is useful when creating
+chunks of seed data that have are dependent on each other's existance.
+
+
 ### Fetch data from the `_config.yml` files
 
 ```ruby

@@ -1,3 +1,11 @@
+v0.6.0, 2014-03-06
+------------------
+
+  * Added method that will allow the user to defer the enforcement of
+    referential integrity checks while a block of code is being
+    executed.
+
+
 v0.5.0, 2014-02-28
 ------------------
 

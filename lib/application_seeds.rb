@@ -158,6 +158,15 @@ module ApplicationSeeds
       end
     end
 
+    #
+    # Defer the enforcement of foreign key constraints while the block is being executed.
+    #
+    def defer_referential_integrity_checks
+      Database.without_foreign_keys do
+        yield
+      end
+    end
+
     private
 
     def dataset_path(dataset)
