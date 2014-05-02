@@ -443,16 +443,6 @@ Specify the name of the dataset to use.  An exception will be raised if
 the dataset could not be found.
 
 
-### Determining the dataset that has been loaded
-
-```ruby
-ApplicationSeeds.dataset
-```
-
-Returns the name of the dataset that has been loaded, or nil if not
-running an application_seeds dataset.
-
-
 ### Checking if a seed file exists in the dataset
 
 ```ruby

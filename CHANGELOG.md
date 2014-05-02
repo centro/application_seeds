@@ -1,3 +1,10 @@
+v0.7.0, 2014-05-02
+------------------
+
+  * Stop storing the dataset in the database.  Removed the
+    `ApplicationSeeds.dataset` method.
+
+
 v0.6.0, 2014-03-06
 ------------------
 
