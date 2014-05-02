@@ -74,27 +74,11 @@ describe "ApplicationSeeds" do
 
     context "when a valid dataset is specified" do
       before do
-        connection_dummy = double
-        connection_dummy.should_receive(:exec).with("INSERT INTO application_seeds (dataset) VALUES ('test_data_set');")
-        ApplicationSeeds::Database.should_receive(:create_metadata_table)
-        ApplicationSeeds::Database.should_receive(:connection) { connection_dummy }
         ApplicationSeeds.dataset = "test_data_set"
       end
       it "sets the dataset" do
         expect(ApplicationSeeds.instance_variable_get(:@dataset)).to eql("test_data_set")
       end
-    end
-  end
-
-  describe "#dataset" do
-    before do
-      connection_dummy = double
-      response_dummy = double(:getvalue => "test_data_set")
-      connection_dummy.should_receive(:exec).with("SELECT dataset from application_seeds LIMIT 1;") { response_dummy }
-      ApplicationSeeds::Database.should_receive(:connection) { connection_dummy }
-    end
-    it "fetches the dataset name from the database" do
-      expect(ApplicationSeeds.dataset).to eql("test_data_set")
     end
   end
 

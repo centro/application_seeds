@@ -95,19 +95,6 @@ module ApplicationSeeds
         error_message << "Available datasets: #{datasets}\n\n"
         raise error_message
       end
-
-      store_dataset
-    end
-
-    #
-    # Returns the name of the dataset that has been loaded, or nil if not
-    # running an application_seeds dataset.
-    #
-    def dataset
-      res = Database.connection.exec("SELECT dataset from application_seeds LIMIT 1;")
-      res.getvalue(0, 0)
-    rescue PG::Error => e
-      e.message =~ /relation "application_seeds" does not exist/ ? nil : raise
     end
 
     #
@@ -171,11 +158,6 @@ module ApplicationSeeds
 
     def dataset_path(dataset)
       Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
-    end
-
-    def store_dataset
-      Database.create_metadata_table
-      Database.connection.exec("INSERT INTO application_seeds (dataset) VALUES ('#{@dataset}');")
     end
 
     def seed_data_path

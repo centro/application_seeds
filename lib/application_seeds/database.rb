@@ -17,11 +17,6 @@ module ApplicationSeeds
         @connection = PG.connect(pg_config)
       end
 
-      def create_metadata_table
-        connection.exec('DROP TABLE IF EXISTS application_seeds;')
-        connection.exec('CREATE TABLE application_seeds (dataset varchar(255));')
-      end
-
       def without_foreign_keys
         drop_foreign_keys_sql = generate_drop_foreign_keys_sql
         create_foreign_keys_sql = generate_create_foreign_keys_sql
@@ -59,8 +54,4 @@ module ApplicationSeeds
 
     end
   end
-end
-
-if defined?(ActiveRecord)
-  ActiveRecord::SchemaDumper.ignore_tables = ["application_seeds"]
 end
