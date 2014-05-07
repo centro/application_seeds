@@ -84,7 +84,7 @@ describe "ApplicationSeeds" do
 
   context "with a valid dataset" do
     before do
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.dataset = "test_data_set"
     end
 
@@ -235,7 +235,7 @@ describe "ApplicationSeeds" do
 
   describe "with a nested dataset" do
     before do
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.dataset = "level_3"
     end
 
@@ -292,7 +292,7 @@ describe "ApplicationSeeds" do
   describe "with UUIDs configured for all seed types" do
     before do
       ApplicationSeeds.instance_variable_set("@dataset", nil)
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid }
       ApplicationSeeds.dataset = "test_data_set"
     end
@@ -311,7 +311,7 @@ describe "ApplicationSeeds" do
   describe "with data type specific key types configured" do
     before do
       ApplicationSeeds.instance_variable_set("@dataset", nil)
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
       ApplicationSeeds.dataset = "test_data_set"
     end
