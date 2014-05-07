@@ -1,10 +1,10 @@
 require 'delegate'
 
 module ApplicationSeeds
-  class Attributes < DelegateClass(Hash)
+  class Attributes < DelegateClass(ActiveSupport::HashWithIndifferentAccess)
 
     def initialize(attributes)
-      super(attributes)
+      super(attributes.with_indifferent_access)
     end
 
     def select_attributes(*attribute_names)
