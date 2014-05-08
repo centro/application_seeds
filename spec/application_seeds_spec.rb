@@ -272,7 +272,7 @@ describe "ApplicationSeeds" do
         person = ApplicationSeeds.people(:sam_jones)
         expect(person['first_name']).to eql("Sam")
       end
-      it "gives the data in lower levels precendence" do
+      it "gives the data in lower levels precedence" do
         person = ApplicationSeeds.people(:ken_adams)
         expect(person['first_name']).to eql("Ken")
       end
@@ -283,7 +283,7 @@ describe "ApplicationSeeds" do
         expect(ApplicationSeeds.config_value(:num_companies)).to eql(5)
         expect(ApplicationSeeds.config_value(:num_departments)).to eql(3)
       end
-      it "gives the data in lower levels precendence" do
+      it "gives the data in lower levels precedence" do
         expect(ApplicationSeeds.config_value(:num_people)).to eql(10)
       end
     end
