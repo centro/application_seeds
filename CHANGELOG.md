@@ -1,3 +1,9 @@
+v0.8.0, 2014-06-13
+------------------
+
+  * Use hashes with indifferent access for the attributes.
+
+
 v0.7.0, 2014-05-02
 ------------------
 
