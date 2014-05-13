@@ -45,7 +45,7 @@ describe "Attributes" do
 
   describe "#map_attributes" do
     before do
-      @mapped_attributes = @attributes.map_attributes(:first_name => :fname, :last_name => :lname)
+      @mapped_attributes = @attributes.map_attributes(:first_name => :fname, 'last_name' => 'lname')
     end
     it "uses the new keys" do
       expect(@mapped_attributes).to eql({ "fname" => "Billy", "lname" => "Bob", "occupation" => "Bus Driver", "major_house" => "Atreides" })
