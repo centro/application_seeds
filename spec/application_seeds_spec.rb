@@ -231,6 +231,15 @@ describe "ApplicationSeeds" do
         expect(ApplicationSeeds.config_value(:whaa)).to be_nil
       end
     end
+
+    describe "fetching the label for an id" do
+      it "can fetch the label for a given id" do
+        expect(ApplicationSeeds.label_for_id(:people, 636095969)).to eql(:joe_smith)
+      end
+      it "returns nil if the id could not be found" do
+        expect(ApplicationSeeds.label_for_id(:people, 111111111)).to be_nil
+      end
+    end
   end
 
   describe "with a nested dataset" do
@@ -304,6 +313,15 @@ describe "ApplicationSeeds" do
       it "uses UUIDs for the keys" do
         expect(@person['id']).to eql("00000000-0000-0000-0000-000010284664")
         expect(@person['company_id']).to eql("00000000-0000-0000-0000-000047393448")
+      end
+    end
+
+    describe "fetching the label for an uuid" do
+      it "can fetch the label for a given uuid" do
+        expect(ApplicationSeeds.label_for_id(:people, '00000000-0000-0000-0000-000010284664')).to eql(:john_walsh)
+      end
+      it "returns nil if the uuid could not be found" do
+        expect(ApplicationSeeds.label_for_id(:people, '00000000-0000-0000-0000-000011111111')).to be_nil
       end
     end
   end

@@ -1,3 +1,9 @@
+v0.8.0, 2014-05-16
+------------------
+
+  * Added the `ApplicationSeeds.label_for_id` method.
+
+
 v0.7.0, 2014-05-02
 ------------------
 
