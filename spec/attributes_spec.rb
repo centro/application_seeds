@@ -21,7 +21,7 @@ describe "Attributes" do
 
   describe "#select_attributes" do
     before do
-      @selected_attributes = @attributes.select_attributes(:first_name, :occupation)
+      @selected_attributes = @attributes.select_attributes(:first_name, "occupation")
     end
     it "returns only the select attributes" do
       expect(@selected_attributes).to eql({ "first_name" => "Billy", "occupation" => "Bus Driver" })
@@ -33,7 +33,7 @@ describe "Attributes" do
 
   describe "#reject_attributes" do
     before do
-      @rejected_attributes = @attributes.reject_attributes(:first_name, :last_name, :major_house)
+      @rejected_attributes = @attributes.reject_attributes(:first_name, :last_name, "major_house")
     end
     it "returns only the select attributes" do
       expect(@rejected_attributes).to eql({ "occupation" => "Bus Driver" })
