@@ -154,6 +154,14 @@ module ApplicationSeeds
       end
     end
 
+    #
+    # Fetch the label for the associated seed type and ID.
+    #
+    def label_for_id(seed_type, id)
+      x = seed_labels[seed_type.to_s].select { |label, ids| ids[:integer] == id || ids[:uuid] == id }
+      x.keys.first.to_sym if x && x.keys.first
+    end
+
     private
 
     def dataset_path(dataset)

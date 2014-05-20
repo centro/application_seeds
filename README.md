@@ -546,6 +546,18 @@ method let's you easly account for slight differences is attribute names
 across applications.
 
 
+### Fetching the label for a specific seed
+
+```ruby
+ApplicationSeeds.label_for_id(:people, 636095969)
+```
+
+This call will return the label (as a symbol) of the seed data entry
+that corresponds to the given seed type and id.  ID or UUID may be used
+to identify the seed data entry.  `nil` will be returned if no seed data
+entry could be found with the specified ID.
+
+
 ### Reset id column sequence numbers
 
 ```ruby

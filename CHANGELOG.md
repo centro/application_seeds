@@ -1,7 +1,13 @@
-v0.8.0, 2014-06-20
+v0.9.0, 2014-06-20
 ------------------
 
   * Use hashes with indifferent access for the attributes.
+
+
+v0.8.0, 2014-05-16
+------------------
+
+  * Added the `ApplicationSeeds.label_for_id` method.
 
 
 v0.7.0, 2014-05-02
