@@ -1,4 +1,4 @@
-v0.8.0, 2014-06-13
+v0.8.0, 2014-06-20
 ------------------
 
   * Use hashes with indifferent access for the attributes.
