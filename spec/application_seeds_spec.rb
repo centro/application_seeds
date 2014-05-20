@@ -84,7 +84,7 @@ describe "ApplicationSeeds" do
 
   context "with a valid dataset" do
     before do
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.dataset = "test_data_set"
     end
 
@@ -244,7 +244,7 @@ describe "ApplicationSeeds" do
 
   describe "with a nested dataset" do
     before do
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.dataset = "level_3"
     end
 
@@ -281,7 +281,7 @@ describe "ApplicationSeeds" do
         person = ApplicationSeeds.people(:sam_jones)
         expect(person['first_name']).to eql("Sam")
       end
-      it "gives the data in lower levels precendence" do
+      it "gives the data in lower levels precedence" do
         person = ApplicationSeeds.people(:ken_adams)
         expect(person['first_name']).to eql("Ken")
       end
@@ -292,7 +292,7 @@ describe "ApplicationSeeds" do
         expect(ApplicationSeeds.config_value(:num_companies)).to eql(5)
         expect(ApplicationSeeds.config_value(:num_departments)).to eql(3)
       end
-      it "gives the data in lower levels precendence" do
+      it "gives the data in lower levels precedence" do
         expect(ApplicationSeeds.config_value(:num_people)).to eql(10)
       end
     end
@@ -301,7 +301,7 @@ describe "ApplicationSeeds" do
   describe "with UUIDs configured for all seed types" do
     before do
       ApplicationSeeds.instance_variable_set("@dataset", nil)
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid }
       ApplicationSeeds.dataset = "test_data_set"
     end
@@ -329,7 +329,7 @@ describe "ApplicationSeeds" do
   describe "with data type specific key types configured" do
     before do
       ApplicationSeeds.instance_variable_set("@dataset", nil)
-      ApplicationSeeds.stub(:store_dataset)
+      allow(ApplicationSeeds).to receive(:store_dataset)
       ApplicationSeeds.config = { :id_type => :uuid, :companies_id_type => :integer }
       ApplicationSeeds.dataset = "test_data_set"
     end

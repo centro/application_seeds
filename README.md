@@ -459,7 +459,7 @@ does not.
 ApplicationSeeds.campaigns  # where "campaigns" is the name of the seed file
 ```
 
-This call returns a hash with one or more entries (depending on the contentes of the seed file).
+This call returns a hash with one or more entries (depending on the contents of the seed file).
 The IDs of the object are the keys, and a hash containing the object's attributes are the values.
 An exception is raised if no seed data could be with the given name.
 
@@ -490,13 +490,18 @@ seed data could be found with the given ID.
 ApplicationSeeds.campaigns(foo: 'bar', name: 'John')  # where "campaigns" is the name of the seed file
 ```
 
-This call returns the seed data that contains the specified attributes,
-and the specified attribute values.  It returns a hash with zero or more
-entries.  The IDs of the object are the keys of the hash, and a hash
-containing the object's attributes are the values.  Any empty hash will
-be returned if no seed data could be found with the given attribute names
-and values.
+This call returns the seed data that contains the specified attributes, and the specified attribute values.  It returns a hash with zero or more entries.  The IDs of the object are the keys of the hash, and a hash containing the object's attributes are the values. Any empty hash will be returned if no seed data could be found with the given attribute names and values.
 
+
+### Accessing attributes
+
+A seed datum is a hash of attributes (with indifferent access):
+
+```ruby
+campaign = ApplicationSeeds.campaigns(642)
+campaign["description"] # => "Best pizza in Chicago"
+campaign[:budget]       # => 10000
+```
 
 ### Creating an object
 
@@ -506,7 +511,6 @@ ApplicationSeeds.create_object!(Campaign, id, attributes)
 
 This call will create a new instance of the `Campaign` class, with the
 specified id and attributes.
-
 
 ### Rejecting specific attributes
 
