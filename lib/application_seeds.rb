@@ -162,6 +162,15 @@ module ApplicationSeeds
       x.keys.first.to_sym if x && x.keys.first
     end
 
+    #
+    # Resets the configuration.
+    #
+    def reset!
+      clear_cached_data
+      @_config = nil
+      @dataset = nil
+    end
+
     private
 
     def dataset_path(dataset)
