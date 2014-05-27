@@ -390,11 +390,11 @@ module ApplicationSeeds
     end
 
     def clear_cached_data
-      @seed_labels = nil
+      @seed_labels         = nil
       @processed_seed_data = nil
-      @raw_seed_data = nil
-      @seed_data_files = nil
-      @config_values = nil
+      @raw_seed_data       = nil
+      @seed_data_files     = nil
+      @config_values       = nil
     end
   end
 end
