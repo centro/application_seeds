@@ -1,7 +1,6 @@
 require "securerandom"
 require "zlib"
 require "yaml"
-require "erb"
 require "pg"
 require "active_support"
 require "active_support/core_ext"
@@ -9,6 +8,7 @@ require "active_support/core_ext"
 require "application_seeds/database"
 require "application_seeds/version"
 require "application_seeds/attributes"
+require "application_seeds/seed_file"
 
 #
 # A library for managing a standardized set of seed data for applications in a non-production environment.
@@ -207,7 +207,7 @@ module ApplicationSeeds
 
       @raw_seed_data = {}
       seed_data_files.each do |seed_file|
-        data = YAML.load(ERB.new(File.read(seed_file)).result)
+        data = ApplicationSeeds::SeedFile.parse_file(seed_file)
         if data
           @raw_seed_data[seed_file] = data
         end
@@ -222,7 +222,7 @@ module ApplicationSeeds
       path = dataset_path(@dataset)
       while (seed_data_path != path) do
         config_file = Dir[File.join(path, "_config.yml")].first
-        values = config_file.nil? ? {} : YAML.load(ERB.new(File.read(config_file)).result)
+        values = config_file.nil? ? {} : ApplicationSeeds::SeedFile.parse_file(config_file)
         @config_values = values.merge(@config_values)
         path.sub!(/\/[^\/]+$/, "")
       end
