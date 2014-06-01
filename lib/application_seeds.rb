@@ -339,7 +339,7 @@ module ApplicationSeeds
         attributes = attrs.clone
         id = seed_labels[type][label][id_type(type)]
         if !block_given? || (block_given? && yield(attributes) == true)
-          result[id] = Attributes.new(attributes)
+          result[id] = Attributes.new(attributes.merge(id: id))
         end
       end
       result

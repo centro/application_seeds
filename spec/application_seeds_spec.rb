@@ -44,14 +44,6 @@ describe "ApplicationSeeds" do
   let(:sam_jones) { ApplicationSeeds.people(:sam_jones) }
   let(:jane_doe) { ApplicationSeeds.people(:jane_doe) }
 
-  # FIXME: the id is not injected into the attributes when the whole dataset is returned
-  # when this bug is fixed, get rid of the `_without_id` definitions here and replace
-  # their uses
-  let(:joe_smith_without_id) { joe_smith.reject_attributes(:id) }
-  let(:john_walsh_without_id) { john_walsh.reject_attributes(:id) }
-  let(:sam_jones_without_id) { sam_jones.reject_attributes(:id) }
-  let(:jane_doe_without_id) { jane_doe.reject_attributes(:id) }
-
   before do
     ApplicationSeeds.data_directory = File.join(File.dirname(__FILE__), "seed_data")
   end
@@ -140,10 +132,13 @@ describe "ApplicationSeeds" do
         expect(people.size).to eql(5)
       end
       it "uses a computed id as the key" do
-        expect(people[joe_smith_id]).to eql(joe_smith_without_id)
+        expect(people[joe_smith_id]).to eql(joe_smith)
       end
       it "uses the id from the object's attributes as the key" do
         expect(people[sam_jones_id]).to eql(sam_jones)
+      end
+      it "includes the id in the object's attributes" do
+        expect(people[joe_smith_id]['id']).to eql(joe_smith_id)
       end
     end
 
@@ -173,15 +168,15 @@ describe "ApplicationSeeds" do
     describe "fetching seed data by property values" do
       it "returns the found person" do
         people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => :ma_and_pa)
-        expect(people.values).to match_array([john_walsh_without_id])
+        expect(people.values).to match_array([john_walsh])
       end
       it "returns multiple people if there are multiple matches" do
         people = ApplicationSeeds.people(:company_id => :mega_corp)
-        expect(people.values).to match_array([joe_smith_without_id, jane_doe_without_id])
+        expect(people.values).to match_array([joe_smith, jane_doe])
       end
       it "can find elements using the id instead of the label" do
         people = ApplicationSeeds.people(:last_name => 'Walsh', :company_id => 47393448)
-        expect(people.values).to match_array([john_walsh_without_id])
+        expect(people.values).to match_array([john_walsh])
       end
       it "returns an empty hash if no matches could be found" do
         people = ApplicationSeeds.people(:last_name => '404')
