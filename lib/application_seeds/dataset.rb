@@ -4,11 +4,11 @@ module ApplicationSeeds
     attr_writer :config, :data_gem_name
 
     def config
-      @config || { :id_type => :integer }
+      @config || DEFAULT_CONFIG
     end
 
     def data_gem_name
-      @data_gem_name ||"application_seed_data"
+      @data_gem_name || DEFAULT_DATA_GEM_NAME
     end
 
     def dataset_path

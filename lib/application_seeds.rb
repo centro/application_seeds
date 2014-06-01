@@ -17,8 +17,16 @@ require "application_seeds/seed_file"
 # See README.md for API documentation.
 #
 module ApplicationSeeds
-  class << self
+  #
+  # See .config and .config=
+  #
+  DEFAULT_CONFIG        = { :id_type => :integer }
+  #
+  # See .data_gem_name and .data_gem_name=
+  #
+  DEFAULT_DATA_GEM_NAME = "application_seed_data"
 
+  class << self
     #
     # Specify any configuration, such as the type of ids to generate (:integer or :uuid).
     #
