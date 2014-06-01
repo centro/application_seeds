@@ -189,44 +189,34 @@ module ApplicationSeeds
       @seed_data_path
     end
 
-    def seed_data_files
-      return @seed_data_files unless @seed_data_files.nil?
-
-      @seed_data_files = []
-      path = dataset_path(@dataset)
-      while (seed_data_path != path) do
-        files = Dir[File.join(path, "*.yml")].reject { |file| file =~ /\/_config.yml$/ }
-        @seed_data_files.concat(files)
-        path.sub!(/\/[^\/]+$/, "")
-      end
-      @seed_data_files
-    end
-
     def raw_seed_data
-      return @raw_seed_data unless @raw_seed_data.nil?
-
-      @raw_seed_data = {}
-      seed_data_files.each do |seed_file|
-        data = ApplicationSeeds::SeedFile.parse_file(seed_file)
-        if data
-          @raw_seed_data[seed_file] = data
-        end
+      @raw_seed_data ||= seed_data_files.inject({}) do |raw_seed_data, seed_file|
+        raw_seed_data.merge!(seed_file => ApplicationSeeds::SeedFile.parse_file(seed_file))
       end
-      @raw_seed_data
     end
 
     def config_values
-      return @config_values unless @config_values.nil?
+      @config_values ||= config_files.inject({}) do |config_values, config_file|
+        config_values.reverse_merge!(ApplicationSeeds::SeedFile.parse_file(config_file))
+      end
+    end
 
-      @config_values = {}
-      path = dataset_path(@dataset)
+    def seed_data_files
+      files(pattern: "*.yml") - config_files
+    end
+
+    def config_files
+      files(pattern: "_config.yml")
+    end
+
+    def files(pattern: nil)
+      files = []
+      path  = dataset_path(@dataset)
       while (seed_data_path != path) do
-        config_file = Dir[File.join(path, "_config.yml")].first
-        values = config_file.nil? ? {} : ApplicationSeeds::SeedFile.parse_file(config_file)
-        @config_values = values.merge(@config_values)
+        files = files + Dir[File.join(path, pattern)]
         path.sub!(/\/[^\/]+$/, "")
       end
-      @config_values
+      files
     end
 
     def seed_labels
