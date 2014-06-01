@@ -23,21 +23,21 @@ module ApplicationSeeds
     #
     def config=(config)
       warn "WARNING!  Calling ApplicationSeeds.config= after dataset has been set (ApplicationSeeds.dataset=) may not produce expected results." unless @dataset.nil?
-      singleton.config = config
+      the_dataset.config = config
     end
 
     #
     # Fetch the configuration.
     #
     def config
-      singleton.config
+      the_dataset.config
     end
 
     #
     # Fetch data from the _config.yml files.
     #
     def config_value(key)
-      singleton.config_values[key.to_s]
+      the_dataset.config_values[key.to_s]
     end
 
     #
@@ -46,7 +46,7 @@ module ApplicationSeeds
     def data_gem_name=(gem_name)
       spec = Gem::Specification.find_by_name(gem_name)
       if Dir.exist?(File.join(spec.gem_dir, "lib", "seeds"))
-        singleton.data_gem_name = gem_name
+        the_dataset.data_gem_name = gem_name
       else
         raise "ERROR: The #{gem_name} gem does not appear to contain application seed data"
       end
@@ -54,10 +54,10 @@ module ApplicationSeeds
 
     #
     # Fetch the name of the directory where the application seed data is loaded from.
-    # Defaults to <tt>"applicadtion_seed_data"</tt> if it was not set using <tt>data_gem_name=</tt>.
+    # Defaults to <tt>"application_seed_data"</tt> if it was not set using <tt>data_gem_name=</tt>.
     #
     def data_gem_name
-      singleton.data_gem_name
+      the_dataset.data_gem_name
     end
 
     #
@@ -65,7 +65,7 @@ module ApplicationSeeds
     #
     def data_directory=(directory)
       if Dir.exist?(directory)
-        singleton.data_directory = directory
+        the_dataset.data_directory = directory
       else
         raise "ERROR: The #{directory} directory does not appear to contain application seed data"
       end
@@ -76,20 +76,19 @@ module ApplicationSeeds
     # if it was set using <tt>data_diretory=</tt>.
     #
     def data_directory
-      singleton.data_directory
+      the_dataset.data_directory
     end
 
     #
     # Specify the name of the dataset to use.  An exception will be raised if
     # the dataset could not be found.
     #
-    def dataset=(dataset)
-      singleton.clear_cached_data
-      singleton.dataset = dataset
+    def dataset=(dataset_name)
+      the_dataset.clear_cached_data
+      the_dataset.name = dataset_name
 
-      if dataset.nil? || dataset.strip.empty? || singleton.dataset_path.nil?
-        datasets = Dir[File.join(singleton.seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
-
+      if dataset_name.nil? || dataset_name.strip.empty? || the_dataset.dataset_path.nil?
+        datasets = Dir[File.join(the_dataset.seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
         error_message =  "\nERROR: A valid dataset is required!\n"
         error_message << "Usage: bundle exec rake application_seeds:load[your_data_set]\n\n"
         error_message << "Available datasets: #{datasets}\n\n"
@@ -98,10 +97,10 @@ module ApplicationSeeds
     end
 
     #
-    # Returns the current dataset.
+    # Returns the name of the current dataset.
     #
     def dataset
-      singleton.dataset
+      the_dataset.name
     end
 
     #
@@ -126,7 +125,7 @@ module ApplicationSeeds
     #   ApplicationSeeds.seed_data_exists?(:campaigns)
     #
     def seed_data_exists?(type)
-      !singleton.processed_seed_data[type.to_s].nil?
+      !the_dataset.processed_seed_data[type.to_s].nil?
     end
 
     #
@@ -165,7 +164,7 @@ module ApplicationSeeds
     # Fetch the label for the associated seed type and ID.
     #
     def label_for_id(seed_type, id)
-      x = singleton.seed_labels[seed_type.to_s].select { |label, ids| ids[:integer] == id || ids[:uuid] == id }
+      x = the_dataset.seed_labels[seed_type.to_s].select { |label, ids| ids[:integer] == id || ids[:uuid] == id }
       x.keys.first.to_sym if x && x.keys.first
     end
 
@@ -173,22 +172,22 @@ module ApplicationSeeds
     # Resets the configuration.
     #
     def reset!
-      @singleton = nil
+      @the_dataset = nil
     end
 
     private
 
-    def singleton
-      @singleton ||= Singleton.new
+    def the_dataset
+      @the_dataset ||= Dataset.new
     end
 
     def method_missing(method, *args)
-      singleton.send(:seed_data, method, args.shift)
+      the_dataset.send(:seed_data, method, args.shift)
     end
   end
 
-  class Singleton
-    attr_accessor :config, :dataset, :data_directory
+  class Dataset
+    attr_accessor :config, :name, :data_directory
     attr_reader :data_gem_name
 
     def initialize
@@ -200,7 +199,7 @@ module ApplicationSeeds
     end
 
     def dataset_path
-      Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
+      Dir[File.join(seed_data_path, "**", "*")].detect { |x| File.directory?(x) && File.basename(x) == name }
     end
 
     def seed_data_path
