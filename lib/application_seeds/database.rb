@@ -26,6 +26,23 @@ module ApplicationSeeds
         connection.exec(create_foreign_keys_sql)
       end
 
+      def reset_sequence_numbers
+        result = Database.connection.exec("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema')")
+        table_names = result.map { |row| row.values_at('table_name')[0] }
+
+        table_names_with_id_column = table_names.select do |table_name|
+          result = Database.connection.exec("SELECT column_name FROM information_schema.columns WHERE table_name = '#{table_name}';")
+          column_names = result.map { |row| row.values_at('column_name')[0] }
+          column_names.include?('id')
+        end
+
+        table_names_with_id_column.each do |table_name|
+          result = Database.connection.exec("SELECT pg_get_serial_sequence('#{table_name}', 'id');")
+          sequence_name = result.getvalue(0, 0)
+          Database.connection.exec("SELECT setval('#{sequence_name}', (select MAX(id) from #{table_name}));")
+        end
+      end
+
       private
 
       def generate_drop_foreign_keys_sql

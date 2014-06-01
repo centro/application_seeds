@@ -140,24 +140,11 @@ module ApplicationSeeds
     #
     # This method will reset the sequence numbers on id columns for all tables
     # in the database with an id column.  If you are having issues where you
-    # are unable to insert new data into the databse after your dataset has
+    # are unable to insert new data into the database after your dataset has
     # been imported, then this should correct them.
     #
     def reset_sequence_numbers
-      result = Database.connection.exec("SELECT table_name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog', 'information_schema')")
-      table_names = result.map { |row| row.values_at('table_name')[0] }
-
-      table_names_with_id_column = table_names.select do |table_name|
-        result = Database.connection.exec("SELECT column_name FROM information_schema.columns WHERE table_name = '#{table_name}';")
-        column_names = result.map { |row| row.values_at('column_name')[0] }
-        column_names.include?('id')
-      end
-
-      table_names_with_id_column.each do |table_name|
-        result = Database.connection.exec("SELECT pg_get_serial_sequence('#{table_name}', 'id');")
-        sequence_name = result.getvalue(0, 0)
-        Database.connection.exec("SELECT setval('#{sequence_name}', (select MAX(id) from #{table_name}));")
-      end
+      Database.reset_sequnece_numbers
     end
 
     #
@@ -194,5 +181,4 @@ module ApplicationSeeds
       the_dataset.send(:seed_data, method, args.shift)
     end
   end
-
 end
