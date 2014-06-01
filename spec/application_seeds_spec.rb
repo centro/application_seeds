@@ -28,6 +28,7 @@ class Department
 end
 
 describe "ApplicationSeeds" do
+  let(:data_directory) { File.join(File.dirname(__FILE__), "seed_data") }
   let(:people) { ApplicationSeeds.people }
 
   let(:joe_smith_id) { 636095969 }
@@ -45,7 +46,7 @@ describe "ApplicationSeeds" do
   let(:jane_doe) { ApplicationSeeds.people(:jane_doe) }
 
   before do
-    ApplicationSeeds.data_directory = File.join(File.dirname(__FILE__), "seed_data")
+    ApplicationSeeds.data_directory = data_directory
   end
 
   describe "#data_gem_name=" do
@@ -93,7 +94,7 @@ describe "ApplicationSeeds" do
         ApplicationSeeds.dataset = "test_data_set"
       end
       it "sets the dataset" do
-        expect(ApplicationSeeds.instance_variable_get(:@dataset)).to eql("test_data_set")
+        expect(ApplicationSeeds.dataset).to eql("test_data_set")
       end
     end
   end
@@ -298,8 +299,9 @@ describe "ApplicationSeeds" do
   describe "with UUIDs configured for all seed types" do
     before do
       ApplicationSeeds.reset!
-      ApplicationSeeds.config  = { :id_type => :uuid }
-      ApplicationSeeds.dataset = "test_data_set"
+      ApplicationSeeds.config         = { :id_type => :uuid }
+      ApplicationSeeds.data_directory = data_directory
+      ApplicationSeeds.dataset        = "test_data_set"
     end
 
     describe "when fetching seed data" do
@@ -322,8 +324,9 @@ describe "ApplicationSeeds" do
   describe "with data type specific key types configured" do
     before do
       ApplicationSeeds.reset!
-      ApplicationSeeds.config  = { :id_type => :uuid, :companies_id_type => :integer }
-      ApplicationSeeds.dataset = "test_data_set"
+      ApplicationSeeds.config         = { :id_type => :uuid, :companies_id_type => :integer }
+      ApplicationSeeds.data_directory = data_directory
+      ApplicationSeeds.dataset        = "test_data_set"
     end
 
     describe "when fetching seed data" do

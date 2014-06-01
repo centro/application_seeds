@@ -23,21 +23,21 @@ module ApplicationSeeds
     #
     def config=(config)
       warn "WARNING!  Calling ApplicationSeeds.config= after dataset has been set (ApplicationSeeds.dataset=) may not produce expected results." unless @dataset.nil?
-      @_config = config
+      singleton.config = config
     end
 
     #
     # Fetch the configuration.
     #
     def config
-      @_config ||= { :id_type => :integer }
+      singleton.config
     end
 
     #
     # Fetch data from the _config.yml files.
     #
     def config_value(key)
-      config_values[key.to_s]
+      singleton.config_values[key.to_s]
     end
 
     #
@@ -46,7 +46,7 @@ module ApplicationSeeds
     def data_gem_name=(gem_name)
       spec = Gem::Specification.find_by_name(gem_name)
       if Dir.exist?(File.join(spec.gem_dir, "lib", "seeds"))
-        @data_gem_name = gem_name
+        singleton.data_gem_name = gem_name
       else
         raise "ERROR: The #{gem_name} gem does not appear to contain application seed data"
       end
@@ -57,7 +57,7 @@ module ApplicationSeeds
     # Defaults to <tt>"applicadtion_seed_data"</tt> if it was not set using <tt>data_gem_name=</tt>.
     #
     def data_gem_name
-      @data_gem_name || "application_seed_data"
+      singleton.data_gem_name
     end
 
     #
@@ -65,7 +65,7 @@ module ApplicationSeeds
     #
     def data_directory=(directory)
       if Dir.exist?(directory)
-        @data_directory = directory
+        singleton.data_directory = directory
       else
         raise "ERROR: The #{directory} directory does not appear to contain application seed data"
       end
@@ -76,7 +76,7 @@ module ApplicationSeeds
     # if it was set using <tt>data_diretory=</tt>.
     #
     def data_directory
-      @data_directory
+      singleton.data_directory
     end
 
     #
@@ -84,17 +84,24 @@ module ApplicationSeeds
     # the dataset could not be found.
     #
     def dataset=(dataset)
-      clear_cached_data
-      @dataset = dataset
+      singleton.clear_cached_data
+      singleton.dataset = dataset
 
-      if dataset.nil? || dataset.strip.empty? || dataset_path(dataset).nil?
-        datasets = Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
+      if dataset.nil? || dataset.strip.empty? || singleton.dataset_path.nil?
+        datasets = Dir[File.join(singleton.seed_data_path, "**", "*")].select { |x| File.directory?(x) }.map { |x| File.basename(x) }.join(', ')
 
         error_message =  "\nERROR: A valid dataset is required!\n"
         error_message << "Usage: bundle exec rake application_seeds:load[your_data_set]\n\n"
         error_message << "Available datasets: #{datasets}\n\n"
         raise error_message
       end
+    end
+
+    #
+    # Returns the current dataset.
+    #
+    def dataset
+      singleton.dataset
     end
 
     #
@@ -119,7 +126,7 @@ module ApplicationSeeds
     #   ApplicationSeeds.seed_data_exists?(:campaigns)
     #
     def seed_data_exists?(type)
-      !processed_seed_data[type.to_s].nil?
+      !singleton.processed_seed_data[type.to_s].nil?
     end
 
     #
@@ -158,7 +165,7 @@ module ApplicationSeeds
     # Fetch the label for the associated seed type and ID.
     #
     def label_for_id(seed_type, id)
-      x = seed_labels[seed_type.to_s].select { |label, ids| ids[:integer] == id || ids[:uuid] == id }
+      x = singleton.seed_labels[seed_type.to_s].select { |label, ids| ids[:integer] == id || ids[:uuid] == id }
       x.keys.first.to_sym if x && x.keys.first
     end
 
@@ -166,14 +173,33 @@ module ApplicationSeeds
     # Resets the configuration.
     #
     def reset!
-      clear_cached_data
-      @_config = nil
-      @dataset = nil
+      @singleton = nil
     end
 
     private
 
-    def dataset_path(dataset)
+    def singleton
+      @singleton ||= Singleton.new
+    end
+
+    def method_missing(method, *args)
+      singleton.send(:seed_data, method, args.shift)
+    end
+  end
+
+  class Singleton
+    attr_accessor :config, :dataset, :data_directory
+    attr_reader :data_gem_name
+
+    def initialize
+      self.config = { :id_type => :integer }
+    end
+
+    def data_gem_name
+      @data_gem_name ||"application_seed_data"
+    end
+
+    def dataset_path
       Dir[File.join(seed_data_path, "**", "*")].select { |x| File.directory?(x) && File.basename(x) == dataset }.first
     end
 
@@ -211,7 +237,7 @@ module ApplicationSeeds
 
     def files(pattern: nil)
       files = []
-      path  = dataset_path(@dataset)
+      path  = dataset_path
       while (seed_data_path != path) do
         files = files + Dir[File.join(path, pattern)]
         path.sub!(/\/[^\/]+$/, "")
@@ -311,10 +337,6 @@ module ApplicationSeeds
       value
     end
 
-    def method_missing(method, *args)
-      self.send(:seed_data, method, args.shift)
-    end
-
     def seed_data(type, options)
       type = type.to_s
       raise "No seed data file could be found for '#{type}'" if processed_seed_data[type].nil?
@@ -375,7 +397,7 @@ module ApplicationSeeds
     end
 
     def id_type(type)
-      self.config["#{type}_id_type".to_sym] || self.config[:id_type]
+      ApplicationSeeds.config["#{type}_id_type".to_sym] || ApplicationSeeds.config[:id_type]
     end
 
     def clear_cached_data
