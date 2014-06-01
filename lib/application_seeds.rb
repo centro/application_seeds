@@ -245,9 +245,10 @@ module ApplicationSeeds
       @processed_seed_data = {}
       seed_data_files.each do |seed_file|
         basename = File.basename(seed_file, ".yml")
-        data = raw_seed_data[seed_file]
+        data     = raw_seed_data[seed_file]
         if data
           data.each do |label, attributes|
+            attributes  = attributes.merge(id: seed_labels[basename][label][id_type(basename)])
             data[label] = replace_labels_with_ids(attributes)
           end
 
@@ -339,7 +340,7 @@ module ApplicationSeeds
         attributes = attrs.clone
         id = seed_labels[type][label][id_type(type)]
         if !block_given? || (block_given? && yield(attributes) == true)
-          result[id] = Attributes.new(attributes.merge(id: id))
+          result[id] = Attributes.new(attributes)
         end
       end
       result
@@ -350,7 +351,6 @@ module ApplicationSeeds
       seed_labels[type].each do |label, ids|
         if ids.values.map(&:to_s).include?(id.to_s)
           data = processed_seed_data[type][label]
-          data['id'] = seed_labels[type][label][id_type(type)]
           break
         end
       end
@@ -361,7 +361,6 @@ module ApplicationSeeds
     def fetch_with_label(type, label)
       data = processed_seed_data[type][label]
       raise "No seed data could be found for '#{type}' with label #{label}" if data.nil?
-      data['id'] = seed_labels[type][label][id_type(type)]
       Attributes.new(data)
     end
 
