@@ -1,10 +1,10 @@
 module ApplicationSeeds
   class Dataset
-    attr_accessor :config, :name, :data_directory
-    attr_reader :data_gem_name
+    attr_accessor :name, :data_directory
+    attr_writer :config, :data_gem_name
 
-    def initialize
-      self.config = { :id_type => :integer }
+    def config
+      @config || { :id_type => :integer }
     end
 
     def data_gem_name
